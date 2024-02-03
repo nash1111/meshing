@@ -1,0 +1,14 @@
+[package]
+edition = "2021"
+name = "meshing"
+version = "0.0.1"
+authors = ["nash1111 ken1251213@gmail.com"]
+description = "triangulation for 2D and 3D(not implemented yet)"
+readme = "README.md"
+license-file = "LICENSE"
+
+[dev-dependencies.plotters]
+version = "0.3.5"
+
+[dev-dependencies.rand]
+version = "0.8.5"
