@@ -43,7 +43,6 @@ fn create_random_points(length: usize) -> Vec<meshing::Point2D> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
         eprintln!("Usage: cargo run --example 2d_plot [number_of_points]");
@@ -68,10 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     root.fill(&WHITE)?;
 
     let mut chart = ChartBuilder::on(&root)
-        .caption(
-            format!("Delaunay for {} points", num_points),
-            "sans-serif",
-        )
+        .caption(format!("Delaunay for {} points", num_points), "sans-serif")
         .build_cartesian_2d(-2.0..2.0, -2.0..2.0)?;
 
     let num_triangle = res.len();
