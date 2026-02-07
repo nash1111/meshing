@@ -39,6 +39,37 @@ fn remove_face_from_front(front: &mut Vec<Face>, face: &Face) {
 ///
 /// Takes a closed surface mesh (as `faces`) and a set of interior/boundary `points`,
 /// then grows tetrahedra from the front until the volume is filled.
+///
+/// # Arguments
+///
+/// * `faces` - Boundary triangular faces forming a closed surface.
+/// * `points` - Vertices of the boundary surface (and optionally interior points).
+///
+/// # Returns
+///
+/// A vector of [`Tetrahedron`]s filling the volume enclosed by the surface.
+///
+/// # Examples
+///
+/// ```
+/// use meshing::advancing_front::advancing_front;
+/// use meshing::{Face, Point3D};
+///
+/// let p = [
+///     Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
+///     Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
+///     Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 },
+///     Point3D { index: 3, x: 0.5, y: 0.5, z: 1.0 },
+/// ];
+/// let faces = vec![
+///     Face { a: p[0], b: p[1], c: p[2] },
+///     Face { a: p[0], b: p[3], c: p[1] },
+///     Face { a: p[1], b: p[3], c: p[2] },
+///     Face { a: p[0], b: p[2], c: p[3] },
+/// ];
+/// let tets = advancing_front(faces, p.to_vec());
+/// assert!(!tets.is_empty());
+/// ```
 pub fn advancing_front(faces: Vec<Face>, points: Vec<Point3D>) -> Vec<Tetrahedron> {
     if faces.is_empty() {
         return Vec::new();

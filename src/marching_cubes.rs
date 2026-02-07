@@ -358,6 +358,19 @@ fn interpolate(
 /// # Returns
 ///
 /// A vector of [`Face`] triangles approximating the isosurface.
+///
+/// # Examples
+///
+/// ```
+/// use meshing::marching_cubes::marching_cubes;
+/// use meshing::Point3D;
+///
+/// let min = Point3D { index: 0, x: -2.0, y: -2.0, z: -2.0 };
+/// let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+/// let sphere = |x: f64, y: f64, z: f64| x * x + y * y + z * z - 1.0;
+/// let faces = marching_cubes(10, 10, 10, min, max, &sphere, 0.0);
+/// assert!(!faces.is_empty());
+/// ```
 pub fn marching_cubes(
     nx: usize,
     ny: usize,

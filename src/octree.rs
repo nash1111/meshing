@@ -76,6 +76,29 @@ fn subdivide(
 /// Recursively subdivides the bounding box into octants up to `max_depth` levels.
 /// At each leaf cell whose center satisfies `is_inside`, a hexahedral cell is
 /// decomposed into 5 tetrahedra.
+///
+/// # Arguments
+///
+/// * `min` - Minimum corner of the bounding box.
+/// * `max` - Maximum corner of the bounding box.
+/// * `max_depth` - Number of recursive subdivision levels (depth 1 = 8 cells).
+/// * `is_inside` - Predicate function; returns `true` if a point is inside the domain.
+///
+/// # Returns
+///
+/// A vector of [`Tetrahedron`]s filling the region where `is_inside` is true.
+///
+/// # Examples
+///
+/// ```
+/// use meshing::octree::octree_mesh;
+/// use meshing::Point3D;
+///
+/// let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+/// let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+/// let tets = octree_mesh(min, max, 1, &|_| true);
+/// assert_eq!(tets.len(), 40); // 8 cells × 5 tets
+/// ```
 pub fn octree_mesh(
     min: Point3D,
     max: Point3D,

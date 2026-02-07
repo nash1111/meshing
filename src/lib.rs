@@ -112,6 +112,25 @@ pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError
     ))
 }
 
+/// Computes the 3D Delaunay tetrahedralization of a set of points using
+/// the Bowyer-Watson incremental insertion algorithm.
+///
+/// Returns a list of [`Tetrahedron`]s forming the Delaunay tetrahedralization.
+///
+/// # Examples
+///
+/// ```
+/// use meshing::{bowyer_watson_3d, Point3D};
+///
+/// let points = vec![
+///     Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
+///     Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
+///     Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 },
+///     Point3D { index: 3, x: 0.5, y: 0.5, z: 1.0 },
+/// ];
+/// let tetrahedra = bowyer_watson_3d(points);
+/// assert_eq!(tetrahedra.len(), 1);
+/// ```
 pub fn bowyer_watson_3d(points: Vec<Point3D>) -> Vec<Tetrahedron> {
     let mut tetrahedralization: Vec<Tetrahedron> = Vec::new();
     let super_tetrahedron = create_super_tetrahedron(&points);
