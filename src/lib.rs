@@ -33,6 +33,7 @@ pub mod advancing_front;
 pub mod delaunay_refinement;
 pub mod marching_cubes;
 pub mod octree;
+pub mod pipeline;
 pub mod voxel_mesh;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
