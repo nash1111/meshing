@@ -21,6 +21,16 @@ fn extract_unique_points(tetrahedra: &[Tetrahedron]) -> Vec<Point3D> {
 
 /// Runs Marching Cubes to extract a surface, then fills the interior with
 /// Advancing Front to produce a tetrahedral volume mesh.
+///
+/// This is useful for converting an implicit surface (scalar field) directly
+/// into a volumetric tetrahedral mesh in one step.
+///
+/// # Arguments
+///
+/// * `nx`, `ny`, `nz` - Grid resolution for Marching Cubes.
+/// * `min`, `max` - Bounding box corners.
+/// * `scalar_field` - Implicit function `f(x,y,z)` defining the surface at `f = iso_value`.
+/// * `iso_value` - Isosurface threshold.
 pub fn surface_to_volume(
     nx: usize,
     ny: usize,
@@ -39,6 +49,17 @@ pub fn surface_to_volume(
 }
 
 /// Generates an octree mesh and then refines it for quality.
+///
+/// Combines octree spatial subdivision with Delaunay refinement to produce
+/// a quality tetrahedral mesh. The octree provides the initial coarse mesh,
+/// and refinement improves element shapes.
+///
+/// # Arguments
+///
+/// * `min`, `max` - Bounding box corners.
+/// * `max_depth` - Octree subdivision depth.
+/// * `is_inside` - Domain containment predicate.
+/// * `max_radius_edge_ratio` - Quality threshold for refinement (lower = better quality).
 pub fn octree_refined(
     min: Point3D,
     max: Point3D,
@@ -55,6 +76,16 @@ pub fn octree_refined(
 }
 
 /// Generates a voxel mesh and then refines it for quality.
+///
+/// Combines uniform voxel meshing with Delaunay refinement to produce
+/// a quality tetrahedral mesh.
+///
+/// # Arguments
+///
+/// * `min`, `max` - Bounding box corners.
+/// * `nx`, `ny`, `nz` - Voxel grid resolution.
+/// * `is_inside` - Domain containment predicate.
+/// * `max_radius_edge_ratio` - Quality threshold for refinement.
 pub fn voxel_refined(
     min: Point3D,
     max: Point3D,
@@ -74,6 +105,11 @@ pub fn voxel_refined(
 
 /// Applies Delaunay refinement to an existing tetrahedral mesh by extracting
 /// its unique vertices and re-meshing with quality constraints.
+///
+/// # Arguments
+///
+/// * `tetrahedra` - Input tetrahedral mesh from any source.
+/// * `max_radius_edge_ratio` - Quality threshold (lower = better quality, 2.0 is typical).
 pub fn refine_tetrahedra(
     tetrahedra: &[Tetrahedron],
     max_radius_edge_ratio: f64,

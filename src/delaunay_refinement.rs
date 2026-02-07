@@ -19,6 +19,38 @@ fn radius_edge_ratio(tet: &Tetrahedron) -> f64 {
     circumsphere.radius / shortest_edge_length(tet)
 }
 
+/// Improves mesh quality by iteratively inserting circumsphere centers of
+/// poorly-shaped tetrahedra (Ruppert-style refinement).
+///
+/// Starts from a Bowyer-Watson tetrahedralization and repeatedly splits the
+/// worst tetrahedron (highest radius-to-edge ratio) until all tetrahedra
+/// satisfy the quality threshold.
+///
+/// # Arguments
+///
+/// * `points` - Initial point set for the base Delaunay tetrahedralization.
+/// * `max_radius_edge_ratio` - Quality threshold; lower values produce
+///   better-shaped tetrahedra but more elements. A value of 2.0 is a common default.
+///
+/// # Returns
+///
+/// A vector of quality-improved [`Tetrahedron`]s.
+///
+/// # Examples
+///
+/// ```
+/// use meshing::delaunay_refinement::delaunay_refinement;
+/// use meshing::Point3D;
+///
+/// let points = vec![
+///     Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 },
+///     Point3D { index: 1, x: 1.0, y: -1.0, z: -1.0 },
+///     Point3D { index: 2, x: -1.0, y: 1.0, z: -1.0 },
+///     Point3D { index: 3, x: -1.0, y: -1.0, z: 1.0 },
+/// ];
+/// let refined = delaunay_refinement(points, 2.0);
+/// assert!(!refined.is_empty());
+/// ```
 pub fn delaunay_refinement(
     points: Vec<Point3D>,
     max_radius_edge_ratio: f64,

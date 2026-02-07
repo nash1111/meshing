@@ -5,6 +5,29 @@ use crate::{Point3D, Tetrahedron};
 /// Divides the bounding box into `nx * ny * nz` cells. For each cell whose
 /// center satisfies `is_inside`, the hexahedral cell is decomposed into 5
 /// tetrahedra.
+///
+/// # Arguments
+///
+/// * `min` - Minimum corner of the bounding box.
+/// * `max` - Maximum corner of the bounding box.
+/// * `nx`, `ny`, `nz` - Number of cells along each axis.
+/// * `is_inside` - Predicate function; returns `true` if a point is inside the domain.
+///
+/// # Returns
+///
+/// A vector of [`Tetrahedron`]s filling the region where `is_inside` is true.
+///
+/// # Examples
+///
+/// ```
+/// use meshing::voxel_mesh::voxel_mesh;
+/// use meshing::Point3D;
+///
+/// let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+/// let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+/// let tets = voxel_mesh(min, max, 2, 2, 2, &|_| true);
+/// assert_eq!(tets.len(), 40); // 8 cells × 5 tets
+/// ```
 pub fn voxel_mesh(
     min: Point3D,
     max: Point3D,
