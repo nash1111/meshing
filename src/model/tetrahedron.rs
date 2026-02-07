@@ -31,8 +31,7 @@ impl Tetrahedron {
         let c_sq = cx * cx + cy * cy + cz * cz;
         let d_sq = dx * dx + dy * dy + dz * dz;
 
-        let det = bx * (cy * dz - cz * dy) - by * (cx * dz - cz * dx)
-            + bz * (cx * dy - cy * dx);
+        let det = bx * (cy * dz - cz * dy) - by * (cx * dz - cz * dx) + bz * (cx * dy - cy * dx);
         let inv_det = 1.0 / (2.0 * det);
 
         let ux = (b_sq * (cy * dz - cz * dy) - c_sq * (by * dz - bz * dy)

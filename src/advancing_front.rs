@@ -135,7 +135,9 @@ pub fn advancing_front(faces: Vec<Face>, points: Vec<Point3D>) -> Vec<Tetrahedro
 
         // If still no point found, generate one along the normal at ideal distance
         if best_point.is_none() {
-            let edge_len = face.a.distance(&face.b)
+            let edge_len = face
+                .a
+                .distance(&face.b)
                 .min(face.b.distance(&face.c))
                 .min(face.a.distance(&face.c));
             let ideal_dist = edge_len * 0.8;
@@ -208,17 +210,53 @@ mod tests {
 
     #[test]
     fn test_single_tetrahedron() {
-        let p0 = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let p1 = Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 };
-        let p2 = Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 };
-        let p3 = Point3D { index: 3, x: 0.5, y: 0.3, z: 1.0 };
+        let p0 = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p1 = Point3D {
+            index: 1,
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p2 = Point3D {
+            index: 2,
+            x: 0.5,
+            y: 1.0,
+            z: 0.0,
+        };
+        let p3 = Point3D {
+            index: 3,
+            x: 0.5,
+            y: 0.3,
+            z: 1.0,
+        };
 
         // 4 faces of a tetrahedron (with outward-facing normals)
         let faces = vec![
-            Face { a: p0, b: p2, c: p1 }, // bottom
-            Face { a: p0, b: p1, c: p3 }, // front
-            Face { a: p1, b: p2, c: p3 }, // right
-            Face { a: p0, b: p3, c: p2 }, // left
+            Face {
+                a: p0,
+                b: p2,
+                c: p1,
+            }, // bottom
+            Face {
+                a: p0,
+                b: p1,
+                c: p3,
+            }, // front
+            Face {
+                a: p1,
+                b: p2,
+                c: p3,
+            }, // right
+            Face {
+                a: p0,
+                b: p3,
+                c: p2,
+            }, // left
         ];
         let points = vec![p0, p1, p2, p3];
 
@@ -230,31 +268,89 @@ mod tests {
 
     #[test]
     fn test_all_tetrahedra_have_nonzero_volume() {
-        let p0 = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let p1 = Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 };
-        let p2 = Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 };
-        let p3 = Point3D { index: 3, x: 0.5, y: 0.3, z: 1.0 };
+        let p0 = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p1 = Point3D {
+            index: 1,
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p2 = Point3D {
+            index: 2,
+            x: 0.5,
+            y: 1.0,
+            z: 0.0,
+        };
+        let p3 = Point3D {
+            index: 3,
+            x: 0.5,
+            y: 0.3,
+            z: 1.0,
+        };
 
         let faces = vec![
-            Face { a: p0, b: p2, c: p1 },
-            Face { a: p0, b: p1, c: p3 },
-            Face { a: p1, b: p2, c: p3 },
-            Face { a: p0, b: p3, c: p2 },
+            Face {
+                a: p0,
+                b: p2,
+                c: p1,
+            },
+            Face {
+                a: p0,
+                b: p1,
+                c: p3,
+            },
+            Face {
+                a: p1,
+                b: p2,
+                c: p3,
+            },
+            Face {
+                a: p0,
+                b: p3,
+                c: p2,
+            },
         ];
         let points = vec![p0, p1, p2, p3];
         let result = advancing_front(faces, points);
         for tet in &result {
-            assert!(tet.signed_volume().abs() > 1e-15, "Degenerate tetrahedron found");
+            assert!(
+                tet.signed_volume().abs() > 1e-15,
+                "Degenerate tetrahedron found"
+            );
         }
     }
 
     #[test]
     fn test_faces_no_points() {
         // Faces provided but no points — should still generate via normal projection
-        let p0 = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let p1 = Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 };
-        let p2 = Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 };
-        let faces = vec![Face { a: p0, b: p1, c: p2 }];
+        let p0 = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p1 = Point3D {
+            index: 1,
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p2 = Point3D {
+            index: 2,
+            x: 0.5,
+            y: 1.0,
+            z: 0.0,
+        };
+        let faces = vec![Face {
+            a: p0,
+            b: p1,
+            c: p2,
+        }];
         let result = advancing_front(faces, Vec::new());
         assert!(!result.is_empty());
     }
@@ -263,36 +359,124 @@ mod tests {
     fn test_cube_surface() {
         // 8 vertices of a unit cube
         let p = [
-            Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            Point3D { index: 2, x: 1.0, y: 1.0, z: 0.0 },
-            Point3D { index: 3, x: 0.0, y: 1.0, z: 0.0 },
-            Point3D { index: 4, x: 0.0, y: 0.0, z: 1.0 },
-            Point3D { index: 5, x: 1.0, y: 0.0, z: 1.0 },
-            Point3D { index: 6, x: 1.0, y: 1.0, z: 1.0 },
-            Point3D { index: 7, x: 0.0, y: 1.0, z: 1.0 },
+            Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 2,
+                x: 1.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 3,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 4,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+            Point3D {
+                index: 5,
+                x: 1.0,
+                y: 0.0,
+                z: 1.0,
+            },
+            Point3D {
+                index: 6,
+                x: 1.0,
+                y: 1.0,
+                z: 1.0,
+            },
+            Point3D {
+                index: 7,
+                x: 0.0,
+                y: 1.0,
+                z: 1.0,
+            },
         ];
 
         // 12 triangular faces (2 per cube face, normals pointing outward)
         let faces = vec![
             // Bottom (z=0), normal -z
-            Face { a: p[0], b: p[1], c: p[2] },
-            Face { a: p[0], b: p[2], c: p[3] },
+            Face {
+                a: p[0],
+                b: p[1],
+                c: p[2],
+            },
+            Face {
+                a: p[0],
+                b: p[2],
+                c: p[3],
+            },
             // Top (z=1), normal +z
-            Face { a: p[4], b: p[6], c: p[5] },
-            Face { a: p[4], b: p[7], c: p[6] },
+            Face {
+                a: p[4],
+                b: p[6],
+                c: p[5],
+            },
+            Face {
+                a: p[4],
+                b: p[7],
+                c: p[6],
+            },
             // Front (y=0), normal -y
-            Face { a: p[0], b: p[5], c: p[1] },
-            Face { a: p[0], b: p[4], c: p[5] },
+            Face {
+                a: p[0],
+                b: p[5],
+                c: p[1],
+            },
+            Face {
+                a: p[0],
+                b: p[4],
+                c: p[5],
+            },
             // Back (y=1), normal +y
-            Face { a: p[2], b: p[7], c: p[3] },
-            Face { a: p[2], b: p[6], c: p[7] },
+            Face {
+                a: p[2],
+                b: p[7],
+                c: p[3],
+            },
+            Face {
+                a: p[2],
+                b: p[6],
+                c: p[7],
+            },
             // Left (x=0), normal -x
-            Face { a: p[0], b: p[3], c: p[7] },
-            Face { a: p[0], b: p[7], c: p[4] },
+            Face {
+                a: p[0],
+                b: p[3],
+                c: p[7],
+            },
+            Face {
+                a: p[0],
+                b: p[7],
+                c: p[4],
+            },
             // Right (x=1), normal +x
-            Face { a: p[1], b: p[5], c: p[6] },
-            Face { a: p[1], b: p[6], c: p[2] },
+            Face {
+                a: p[1],
+                b: p[5],
+                c: p[6],
+            },
+            Face {
+                a: p[1],
+                b: p[6],
+                c: p[2],
+            },
         ];
         let points = p.to_vec();
 

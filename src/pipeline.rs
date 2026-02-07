@@ -144,16 +144,36 @@ mod tests {
 
     #[test]
     fn test_surface_to_volume_sphere() {
-        let min = Point3D { index: 0, x: -2.0, y: -2.0, z: -2.0 };
-        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
         let result = surface_to_volume(8, 8, 8, min, max, &sphere_field, 0.0);
         assert!(!result.is_empty());
     }
 
     #[test]
     fn test_surface_to_volume_empty_field() {
-        let min = Point3D { index: 0, x: -1.0, y: -1.0, z: -1.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: -1.0,
+            y: -1.0,
+            z: -1.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         // Field always positive → no isosurface
         let result = surface_to_volume(4, 4, 4, min, max, &|_, _, _| 10.0, 0.0);
         assert!(result.is_empty());
@@ -161,8 +181,18 @@ mod tests {
 
     #[test]
     fn test_octree_refined() {
-        let min = Point3D { index: 0, x: -1.0, y: -1.0, z: -1.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: -1.0,
+            y: -1.0,
+            z: -1.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         // Use depth=1 and loose ratio to keep test fast
         let result = octree_refined(min, max, 1, &|_| true, 2.0);
         assert!(!result.is_empty());
@@ -170,8 +200,18 @@ mod tests {
 
     #[test]
     fn test_voxel_refined() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         // Use 2x2x2 and loose ratio to keep test fast
         let result = voxel_refined(min, max, 2, 2, 2, &|_| true, 2.0);
         assert!(!result.is_empty());
@@ -186,10 +226,30 @@ mod tests {
     #[test]
     fn test_refine_tetrahedra_single() {
         let tet = Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.5, y: 0.5, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.5,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.5,
+                y: 0.5,
+                z: 1.0,
+            },
         };
         let result = refine_tetrahedra(&[tet], 2.0);
         assert!(!result.is_empty());
@@ -197,8 +257,18 @@ mod tests {
 
     #[test]
     fn test_octree_refined_empty_domain() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = octree_refined(min, max, 2, &|_| false, 2.0);
         assert!(result.is_empty());
     }
@@ -206,10 +276,30 @@ mod tests {
     #[test]
     fn test_extract_unique_points() {
         let tet = Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let points = extract_unique_points(&[tet]);
         assert_eq!(points.len(), 4);

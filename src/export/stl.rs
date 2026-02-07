@@ -96,9 +96,21 @@ mod tests {
     #[test]
     fn test_triangles_to_stl_single_triangle() {
         let triangles = vec![Triangle {
-            a: Point2D { index: 0, x: 0.0, y: 0.0 },
-            b: Point2D { index: 1, x: 1.0, y: 0.0 },
-            c: Point2D { index: 2, x: 0.0, y: 1.0 },
+            a: Point2D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+            },
+            b: Point2D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+            },
+            c: Point2D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+            },
         }];
 
         let result = triangles_to_stl(&triangles, "mesh");
@@ -114,14 +126,38 @@ mod tests {
     fn test_triangles_to_stl_multiple_triangles() {
         let triangles = vec![
             Triangle {
-                a: Point2D { index: 0, x: 0.0, y: 0.0 },
-                b: Point2D { index: 1, x: 1.0, y: 0.0 },
-                c: Point2D { index: 2, x: 0.0, y: 1.0 },
+                a: Point2D {
+                    index: 0,
+                    x: 0.0,
+                    y: 0.0,
+                },
+                b: Point2D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                },
+                c: Point2D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                },
             },
             Triangle {
-                a: Point2D { index: 1, x: 1.0, y: 0.0 },
-                b: Point2D { index: 3, x: 1.0, y: 1.0 },
-                c: Point2D { index: 2, x: 0.0, y: 1.0 },
+                a: Point2D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                },
+                b: Point2D {
+                    index: 3,
+                    x: 1.0,
+                    y: 1.0,
+                },
+                c: Point2D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                },
             },
         ];
 
@@ -132,10 +168,30 @@ mod tests {
 
     fn single_tet() -> Tetrahedron {
         Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         }
     }
 
@@ -158,9 +214,24 @@ mod tests {
     #[test]
     fn test_faces_to_stl_computes_normal() {
         let face = Face {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
         };
         let result = faces_to_stl(&[face], "test");
         // Normal should be (0, 0, 1) for a face in the XY plane
@@ -176,14 +247,49 @@ mod tests {
     #[test]
     fn test_extract_surface_shared_face_excluded() {
         // Two tetrahedra sharing a face — the shared face should be excluded
-        let p0 = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let p1 = Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 };
-        let p2 = Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 };
-        let p3 = Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 };
-        let p4 = Point3D { index: 4, x: 0.0, y: 0.0, z: -1.0 };
+        let p0 = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p1 = Point3D {
+            index: 1,
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let p2 = Point3D {
+            index: 2,
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        };
+        let p3 = Point3D {
+            index: 3,
+            x: 0.0,
+            y: 0.0,
+            z: 1.0,
+        };
+        let p4 = Point3D {
+            index: 4,
+            x: 0.0,
+            y: 0.0,
+            z: -1.0,
+        };
 
-        let tet1 = Tetrahedron { a: p0, b: p1, c: p2, d: p3 };
-        let tet2 = Tetrahedron { a: p0, b: p1, c: p2, d: p4 };
+        let tet1 = Tetrahedron {
+            a: p0,
+            b: p1,
+            c: p2,
+            d: p3,
+        };
+        let tet2 = Tetrahedron {
+            a: p0,
+            b: p1,
+            c: p2,
+            d: p4,
+        };
         let surface = extract_surface_faces(&[tet1, tet2]);
         // 2 tets * 4 faces = 8 total, minus 2 (shared face counted in both) = 6
         assert_eq!(surface.len(), 6);

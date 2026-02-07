@@ -49,17 +49,30 @@ fn collect_mesh_data(faces: &[Face]) -> MeshData {
     for (_, v) in &vertices {
         let coords = [v.x as f32, v.y as f32, v.z as f32];
         for i in 0..3 {
-            if coords[i] < min[i] { min[i] = coords[i]; }
-            if coords[i] > max[i] { max[i] = coords[i]; }
+            if coords[i] < min[i] {
+                min[i] = coords[i];
+            }
+            if coords[i] > max[i] {
+                max[i] = coords[i];
+            }
         }
         positions.extend_from_slice(&coords);
     }
 
     let mut indices = Vec::with_capacity(faces.len() * 3);
     for face in faces {
-        let a = vertices.iter().position(|(idx, _)| *idx == face.a.index).unwrap() as u32;
-        let b = vertices.iter().position(|(idx, _)| *idx == face.b.index).unwrap() as u32;
-        let c = vertices.iter().position(|(idx, _)| *idx == face.c.index).unwrap() as u32;
+        let a = vertices
+            .iter()
+            .position(|(idx, _)| *idx == face.a.index)
+            .unwrap() as u32;
+        let b = vertices
+            .iter()
+            .position(|(idx, _)| *idx == face.b.index)
+            .unwrap() as u32;
+        let c = vertices
+            .iter()
+            .position(|(idx, _)| *idx == face.c.index)
+            .unwrap() as u32;
         indices.push(a);
         indices.push(b);
         indices.push(c);
@@ -70,7 +83,12 @@ fn collect_mesh_data(faces: &[Face]) -> MeshData {
         max = [0.0; 3];
     }
 
-    MeshData { positions, indices, min, max }
+    MeshData {
+        positions,
+        indices,
+        min,
+        max,
+    }
 }
 
 fn build_binary_buffer(data: &MeshData) -> Vec<u8> {
@@ -195,19 +213,22 @@ pub fn faces_to_glb(faces: &[Face]) -> Vec<u8> {
     let mut glb = Vec::with_capacity(total_length);
 
     // GLB Header
-    glb.extend_from_slice(b"glTF");                          // magic
-    glb.extend_from_slice(&2u32.to_le_bytes());              // version
+    glb.extend_from_slice(b"glTF"); // magic
+    glb.extend_from_slice(&2u32.to_le_bytes()); // version
     glb.extend_from_slice(&(total_length as u32).to_le_bytes()); // total length
 
     // JSON chunk
     glb.extend_from_slice(&(json_padded_len as u32).to_le_bytes()); // chunk length
-    glb.extend_from_slice(&0x4E4F534Au32.to_le_bytes());           // chunk type "JSON"
+    glb.extend_from_slice(&0x4E4F534Au32.to_le_bytes()); // chunk type "JSON"
     glb.extend_from_slice(json_bytes);
-    glb.extend(std::iter::repeat_n(b' ', json_padded_len - json_bytes.len()));
+    glb.extend(std::iter::repeat_n(
+        b' ',
+        json_padded_len - json_bytes.len(),
+    ));
 
     // Binary chunk
     glb.extend_from_slice(&(bin_padded_len as u32).to_le_bytes()); // chunk length
-    glb.extend_from_slice(&0x004E4942u32.to_le_bytes());           // chunk type "BIN\0"
+    glb.extend_from_slice(&0x004E4942u32.to_le_bytes()); // chunk type "BIN\0"
     glb.extend_from_slice(&bin_buffer);
     glb.extend(std::iter::repeat_n(0u8, bin_padded_len - bin_buffer.len()));
 
@@ -232,9 +253,24 @@ mod tests {
 
     fn test_face() -> Face {
         Face {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
         }
     }
 
@@ -301,10 +337,30 @@ mod tests {
     #[test]
     fn test_tetrahedra_to_gltf() {
         let tet = Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let json = tetrahedra_to_gltf(&[tet]);
         assert!(json.contains("\"version\":\"2.0\""));
@@ -313,10 +369,30 @@ mod tests {
     #[test]
     fn test_tetrahedra_to_glb() {
         let tet = Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let glb = tetrahedra_to_glb(&[tet]);
         assert_eq!(&glb[0..4], b"glTF");

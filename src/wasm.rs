@@ -130,16 +130,31 @@ pub fn octree_mesh_generate(
     depth: usize,
     is_inside_fn: &Function,
 ) -> Result<JsValue, JsError> {
-    let min = Point3D { index: 0, x: min_x, y: min_y, z: min_z };
-    let max = Point3D { index: 0, x: max_x, y: max_y, z: max_z };
+    let min = Point3D {
+        index: 0,
+        x: min_x,
+        y: min_y,
+        z: min_z,
+    };
+    let max = Point3D {
+        index: 0,
+        x: max_x,
+        y: max_y,
+        z: max_z,
+    };
 
     let func = is_inside_fn.clone();
     let is_inside = move |p: &Point3D| -> bool {
         let this = JsValue::null();
-        func.call3(&this, &JsValue::from(p.x), &JsValue::from(p.y), &JsValue::from(p.z))
-            .ok()
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false)
+        func.call3(
+            &this,
+            &JsValue::from(p.x),
+            &JsValue::from(p.y),
+            &JsValue::from(p.z),
+        )
+        .ok()
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
     };
 
     let tets = octree_mesh(min, max, depth, &is_inside);
@@ -167,16 +182,31 @@ pub fn marching_cubes_generate(
     scalar_field_fn: &Function,
     iso_value: f64,
 ) -> Result<JsValue, JsError> {
-    let min = Point3D { index: 0, x: min_x, y: min_y, z: min_z };
-    let max = Point3D { index: 0, x: max_x, y: max_y, z: max_z };
+    let min = Point3D {
+        index: 0,
+        x: min_x,
+        y: min_y,
+        z: min_z,
+    };
+    let max = Point3D {
+        index: 0,
+        x: max_x,
+        y: max_y,
+        z: max_z,
+    };
 
     let func = scalar_field_fn.clone();
     let field = move |x: f64, y: f64, z: f64| -> f64 {
         let this = JsValue::null();
-        func.call3(&this, &JsValue::from(x), &JsValue::from(y), &JsValue::from(z))
-            .ok()
-            .and_then(|v| v.as_f64())
-            .unwrap_or(0.0)
+        func.call3(
+            &this,
+            &JsValue::from(x),
+            &JsValue::from(y),
+            &JsValue::from(z),
+        )
+        .ok()
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0)
     };
 
     let faces = marching_cubes(nx, ny, nz, min, max, &field, iso_value);
@@ -232,16 +262,31 @@ pub fn voxel_mesh_generate(
     nz: usize,
     is_inside_fn: &Function,
 ) -> Result<JsValue, JsError> {
-    let min = Point3D { index: 0, x: min_x, y: min_y, z: min_z };
-    let max = Point3D { index: 0, x: max_x, y: max_y, z: max_z };
+    let min = Point3D {
+        index: 0,
+        x: min_x,
+        y: min_y,
+        z: min_z,
+    };
+    let max = Point3D {
+        index: 0,
+        x: max_x,
+        y: max_y,
+        z: max_z,
+    };
 
     let func = is_inside_fn.clone();
     let is_inside = move |p: &Point3D| -> bool {
         let this = JsValue::null();
-        func.call3(&this, &JsValue::from(p.x), &JsValue::from(p.y), &JsValue::from(p.z))
-            .ok()
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false)
+        func.call3(
+            &this,
+            &JsValue::from(p.x),
+            &JsValue::from(p.y),
+            &JsValue::from(p.z),
+        )
+        .ok()
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
     };
 
     let tets = voxel_mesh(min, max, nx, ny, nz, &is_inside);

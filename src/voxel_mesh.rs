@@ -111,11 +111,36 @@ pub fn voxel_mesh(
                 };
 
                 // Standard 5-tetrahedra decomposition of a hexahedron
-                tetrahedra.push(Tetrahedron { a: p0, b: p1, c: p3, d: p4 });
-                tetrahedra.push(Tetrahedron { a: p1, b: p2, c: p3, d: p6 });
-                tetrahedra.push(Tetrahedron { a: p1, b: p4, c: p5, d: p6 });
-                tetrahedra.push(Tetrahedron { a: p3, b: p4, c: p6, d: p7 });
-                tetrahedra.push(Tetrahedron { a: p1, b: p3, c: p4, d: p6 });
+                tetrahedra.push(Tetrahedron {
+                    a: p0,
+                    b: p1,
+                    c: p3,
+                    d: p4,
+                });
+                tetrahedra.push(Tetrahedron {
+                    a: p1,
+                    b: p2,
+                    c: p3,
+                    d: p6,
+                });
+                tetrahedra.push(Tetrahedron {
+                    a: p1,
+                    b: p4,
+                    c: p5,
+                    d: p6,
+                });
+                tetrahedra.push(Tetrahedron {
+                    a: p3,
+                    b: p4,
+                    c: p6,
+                    d: p7,
+                });
+                tetrahedra.push(Tetrahedron {
+                    a: p1,
+                    b: p3,
+                    c: p4,
+                    d: p6,
+                });
             }
         }
     }
@@ -129,24 +154,54 @@ mod tests {
 
     #[test]
     fn test_single_cell_always_inside() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 1, 1, 1, &|_| true);
         assert_eq!(result.len(), 5);
     }
 
     #[test]
     fn test_2x2x2_all_inside() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 2, 2, 2, &|_| true);
         assert_eq!(result.len(), 40);
     }
 
     #[test]
     fn test_sphere_containment() {
-        let min = Point3D { index: 0, x: -1.0, y: -1.0, z: -1.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: -1.0,
+            y: -1.0,
+            z: -1.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 4, 4, 4, &|p| {
             p.x * p.x + p.y * p.y + p.z * p.z <= 1.0
         });
@@ -156,26 +211,59 @@ mod tests {
 
     #[test]
     fn test_empty_domain() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 4, 4, 4, &|_| false);
         assert!(result.is_empty());
     }
 
     #[test]
     fn test_all_tetrahedra_have_nonzero_volume() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 3, 3, 3, &|_| true);
         for tet in &result {
-            assert!(tet.signed_volume().abs() > 1e-15, "Degenerate tetrahedron found");
+            assert!(
+                tet.signed_volume().abs() > 1e-15,
+                "Degenerate tetrahedron found"
+            );
         }
     }
 
     #[test]
     fn test_asymmetric_resolution() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 1, 2, 3, &|_| true);
         // 1×2×3 = 6 cells × 5 tets = 30
         assert_eq!(result.len(), 30);
@@ -183,8 +271,18 @@ mod tests {
 
     #[test]
     fn test_shared_vertex_indices() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = voxel_mesh(min, max, 2, 2, 2, &|_| true);
         // Collect all unique vertex indices
         let mut indices: Vec<i64> = Vec::new();
