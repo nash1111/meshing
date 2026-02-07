@@ -4,9 +4,12 @@ pub use model::{Edge, Point2D, Triangle};
 use triangle_utils::remove_triangles_with_vertices_from_super_triangle;
 
 pub mod error;
+pub mod export;
 mod geometry;
 mod model;
 mod triangle_utils;
+#[cfg(target_arch = "wasm32")]
+pub mod wasm;
 
 pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError> {
     if points.is_empty() {
