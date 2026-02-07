@@ -7,6 +7,9 @@ description = "meshing for 2D and 3D(not implemented yet)"
 readme = "README.md"
 license-file = "LICENSE"
 
+[dependencies]
+thiserror = "1"
+
 [dev-dependencies.plotters]
 version = "0.3.5"
 
