@@ -9,3 +9,15 @@ pub use edge::Edge;
 
 mod circle;
 pub use circle::Circle;
+
+mod point_3d;
+pub use point_3d::Point3D;
+
+mod tetrahedron;
+pub use tetrahedron::Tetrahedron;
+
+mod face;
+pub use face::Face;
+
+mod sphere;
+pub use sphere::Sphere;

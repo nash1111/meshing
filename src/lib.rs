@@ -1,12 +1,16 @@
 use error::MeshingError;
 use geometry::{create_super_triangle, edge_is_shared_by_triangles, retriangulate};
-pub use model::{Edge, Point2D, Triangle};
+use geometry_3d::{create_super_tetrahedron, face_is_shared_by_tetrahedra, retetrahedralize};
+pub use model::{Edge, Face, Point2D, Point3D, Sphere, Tetrahedron, Triangle};
+use tetrahedron_utils::remove_tetrahedra_with_vertices_from_super_tetrahedron;
 use triangle_utils::remove_triangles_with_vertices_from_super_triangle;
 
 pub mod error;
 pub mod export;
 mod geometry;
+mod geometry_3d;
 mod model;
+mod tetrahedron_utils;
 mod triangle_utils;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
@@ -63,6 +67,53 @@ pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError
         &triangulation,
         &super_triangle,
     ))
+}
+
+pub fn bowyer_watson_3d(points: Vec<Point3D>) -> Vec<Tetrahedron> {
+    let mut tetrahedralization: Vec<Tetrahedron> = Vec::new();
+    let super_tetrahedron = create_super_tetrahedron(&points);
+    tetrahedralization.push(super_tetrahedron);
+
+    for point in points {
+        let mut bad_tetrahedra: Vec<Tetrahedron> = Vec::new();
+
+        for tet in &tetrahedralization {
+            let circumsphere = tet.circumsphere();
+            if circumsphere.point_in_sphere(&point) {
+                bad_tetrahedra.push(*tet);
+            }
+        }
+
+        let mut boundary_faces: Vec<Face> = Vec::new();
+
+        for tet in &bad_tetrahedra {
+            let faces = tet.faces();
+            let bad_tetrahedra_without_tet: Vec<Tetrahedron> = bad_tetrahedra
+                .iter()
+                .filter(|t| t != &tet)
+                .cloned()
+                .collect();
+            for face in faces {
+                if !face_is_shared_by_tetrahedra(&face, &bad_tetrahedra_without_tet) {
+                    boundary_faces.push(face);
+                }
+            }
+        }
+
+        for bad_tet in &bad_tetrahedra {
+            tetrahedralization.retain(|tet| tet != bad_tet);
+        }
+
+        for face in &boundary_faces {
+            let new_tet = retetrahedralize(face, &point);
+            tetrahedralization.push(new_tet);
+        }
+    }
+
+    remove_tetrahedra_with_vertices_from_super_tetrahedron(
+        &tetrahedralization,
+        &super_tetrahedron,
+    )
 }
 
 #[cfg(test)]
@@ -127,5 +178,138 @@ mod tests {
             result.unwrap_err().to_string(),
             "insufficient points for triangulation: need at least 3, got 2"
         );
+    }
+
+    #[test]
+    fn test_bowyer_watson_3d_single_tetrahedron() {
+        let points = vec![
+            Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 2,
+                x: 0.5,
+                y: 1.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 3,
+                x: 0.5,
+                y: 0.5,
+                z: 1.0,
+            },
+        ];
+        let result = bowyer_watson_3d(points);
+        assert_eq!(result.len(), 1);
+    }
+
+    #[test]
+    fn test_bowyer_watson_3d_cube() {
+        let points = vec![
+            Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 3,
+                x: 1.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            Point3D {
+                index: 4,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+            Point3D {
+                index: 5,
+                x: 1.0,
+                y: 0.0,
+                z: 1.0,
+            },
+            Point3D {
+                index: 6,
+                x: 0.0,
+                y: 1.0,
+                z: 1.0,
+            },
+            Point3D {
+                index: 7,
+                x: 1.0,
+                y: 1.0,
+                z: 1.0,
+            },
+        ];
+        let result = bowyer_watson_3d(points);
+        assert!(result.len() >= 5);
+        for tet in &result {
+            for v in tet.vertices() {
+                assert!(v.index >= 0 && v.index <= 7);
+            }
+        }
+    }
+
+    #[test]
+    fn test_circumsphere() {
+        let tet = Tetrahedron {
+            a: Point3D {
+                index: 0,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: -1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        let sphere = tet.circumsphere();
+        let eps = 1e-10;
+        let d_a = sphere.center.distance(&tet.a);
+        let d_b = sphere.center.distance(&tet.b);
+        let d_c = sphere.center.distance(&tet.c);
+        let d_d = sphere.center.distance(&tet.d);
+        assert!((d_a - sphere.radius).abs() < eps);
+        assert!((d_b - sphere.radius).abs() < eps);
+        assert!((d_c - sphere.radius).abs() < eps);
+        assert!((d_d - sphere.radius).abs() < eps);
     }
 }
