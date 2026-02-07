@@ -398,4 +398,189 @@ mod tests {
         assert_eq!(&glb[0..4], b"glTF");
         assert_eq!(glb.len() % 4, 0);
     }
+
+    #[test]
+    fn test_gltf_from_marching_cubes_sphere() {
+        use crate::marching_cubes::marching_cubes;
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+        let faces = marching_cubes(
+            6,
+            6,
+            6,
+            min,
+            max,
+            &|x, y, z| x * x + y * y + z * z - 1.0,
+            0.0,
+        );
+        assert!(!faces.is_empty());
+
+        let json = faces_to_gltf(&faces);
+        assert!(json.contains("\"version\":\"2.0\""));
+        assert!(json.contains("\"generator\":\"meshing\""));
+        assert!(json.contains("data:application/octet-stream;base64,"));
+        // Vertex count should match unique vertices
+        assert!(json.contains("\"componentType\":5126")); // FLOAT
+        assert!(json.contains("\"componentType\":5125")); // UNSIGNED_INT
+    }
+
+    #[test]
+    fn test_glb_from_marching_cubes_sphere() {
+        use crate::marching_cubes::marching_cubes;
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+        let faces = marching_cubes(
+            6,
+            6,
+            6,
+            min,
+            max,
+            &|x, y, z| x * x + y * y + z * z - 1.0,
+            0.0,
+        );
+        assert!(!faces.is_empty());
+
+        let glb = faces_to_glb(&faces);
+
+        // Header validation
+        assert_eq!(&glb[0..4], b"glTF");
+        let version = u32::from_le_bytes([glb[4], glb[5], glb[6], glb[7]]);
+        assert_eq!(version, 2);
+        let total = u32::from_le_bytes([glb[8], glb[9], glb[10], glb[11]]);
+        assert_eq!(total as usize, glb.len());
+        assert_eq!(glb.len() % 4, 0);
+
+        // JSON chunk
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let json_type = u32::from_le_bytes([glb[16], glb[17], glb[18], glb[19]]);
+        assert_eq!(json_type, 0x4E4F534A); // "JSON"
+        assert_eq!(json_len % 4, 0); // padded
+
+        let json = std::str::from_utf8(&glb[20..20 + json_len]).unwrap().trim();
+        assert!(json.contains("\"POSITION\":0"));
+        assert!(json.contains("\"indices\":1"));
+
+        // BIN chunk
+        let bin_offset = 20 + json_len;
+        let bin_len = u32::from_le_bytes([
+            glb[bin_offset],
+            glb[bin_offset + 1],
+            glb[bin_offset + 2],
+            glb[bin_offset + 3],
+        ]) as usize;
+        let bin_type = u32::from_le_bytes([
+            glb[bin_offset + 4],
+            glb[bin_offset + 5],
+            glb[bin_offset + 6],
+            glb[bin_offset + 7],
+        ]);
+        assert_eq!(bin_type, 0x004E4942); // "BIN\0"
+        assert!(bin_len > 0);
+    }
+
+    #[test]
+    fn test_glb_accessor_counts_match_mesh() {
+        let faces = vec![
+            Face {
+                a: Point3D {
+                    index: 0,
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                b: Point3D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                c: Point3D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                    z: 0.0,
+                },
+            },
+            Face {
+                a: Point3D {
+                    index: 0,
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                b: Point3D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                    z: 0.0,
+                },
+                c: Point3D {
+                    index: 3,
+                    x: 0.0,
+                    y: 0.0,
+                    z: 1.0,
+                },
+            },
+        ];
+        let json = faces_to_gltf(&faces);
+        // 4 unique vertices, 6 indices
+        assert!(json.contains("\"count\":4"));
+        assert!(json.contains("\"count\":6"));
+    }
+
+    #[test]
+    fn test_glb_min_max_bounds() {
+        let face = Face {
+            a: Point3D {
+                index: 0,
+                x: -1.0,
+                y: -2.0,
+                z: -3.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 4.0,
+                y: 5.0,
+                z: 6.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+        };
+        let json = faces_to_gltf(&[face]);
+        assert!(json.contains("\"min\":[-1,-2,-3]"));
+        assert!(json.contains("\"max\":[4,5,6]"));
+    }
+
+    #[test]
+    fn test_glb_two_chunks_present() {
+        let glb = faces_to_glb(&[test_face()]);
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        // After JSON chunk (8 header + json_len), there should be a BIN chunk
+        let bin_offset = 20 + json_len;
+        assert!(glb.len() > bin_offset + 8); // BIN chunk header exists
+    }
 }

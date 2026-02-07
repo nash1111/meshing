@@ -416,4 +416,145 @@ mod tests {
         let glb = tetrahedra_to_glb_quantized(&[tet]);
         assert_eq!(&glb[0..4], b"glTF");
     }
+
+    #[test]
+    fn test_quantized_from_marching_cubes() {
+        use crate::marching_cubes::marching_cubes;
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+        let faces = marching_cubes(
+            6,
+            6,
+            6,
+            min,
+            max,
+            &|x, y, z| x * x + y * y + z * z - 1.0,
+            0.0,
+        );
+        assert!(!faces.is_empty());
+
+        let glb = faces_to_glb_quantized(&faces);
+        assert_eq!(&glb[0..4], b"glTF");
+        let version = u32::from_le_bytes([glb[4], glb[5], glb[6], glb[7]]);
+        assert_eq!(version, 2);
+        let total = u32::from_le_bytes([glb[8], glb[9], glb[10], glb[11]]);
+        assert_eq!(total as usize, glb.len());
+        assert_eq!(glb.len() % 4, 0);
+
+        // Verify extension in JSON
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let json = std::str::from_utf8(&glb[20..20 + json_len]).unwrap().trim();
+        assert!(json.contains("KHR_mesh_quantization"));
+        assert!(json.contains("\"componentType\":5122")); // SHORT
+        assert!(json.contains("\"extensionsRequired\""));
+    }
+
+    #[test]
+    fn test_quantized_has_node_matrix() {
+        let glb = faces_to_glb_quantized(&[test_face()]);
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let json = std::str::from_utf8(&glb[20..20 + json_len]).unwrap().trim();
+        // Node should have a matrix for dequantization
+        assert!(json.contains("\"matrix\""));
+    }
+
+    #[test]
+    fn test_quantized_i16_min_max() {
+        let glb = faces_to_glb_quantized(&[test_face()]);
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let json = std::str::from_utf8(&glb[20..20 + json_len]).unwrap().trim();
+        // i16 range: [-32767, 32767]
+        assert!(json.contains("\"max\":[32767,32767,32767]"));
+        assert!(json.contains("\"min\":[-32767,-32767,-32767]"));
+    }
+
+    #[test]
+    fn test_quantized_binary_buffer_size() {
+        // 3 vertices * 3 components * 2 bytes (i16) = 18 bytes, padded to 20
+        // 3 indices * 4 bytes (u32) = 12 bytes
+        // total binary = 32 bytes
+        let glb = faces_to_glb_quantized(&[test_face()]);
+
+        let json_len = u32::from_le_bytes([glb[12], glb[13], glb[14], glb[15]]) as usize;
+        let bin_offset = 20 + json_len;
+        let bin_len = u32::from_le_bytes([
+            glb[bin_offset],
+            glb[bin_offset + 1],
+            glb[bin_offset + 2],
+            glb[bin_offset + 3],
+        ]) as usize;
+        // pos: 3*3*2=18 padded to 20, idx: 3*4=12, total=32
+        assert_eq!(bin_len, 32);
+    }
+
+    #[test]
+    fn test_quantized_vs_regular_both_valid() {
+        let faces = vec![
+            Face {
+                a: Point3D {
+                    index: 0,
+                    x: -5.0,
+                    y: -5.0,
+                    z: -5.0,
+                },
+                b: Point3D {
+                    index: 1,
+                    x: 5.0,
+                    y: -5.0,
+                    z: -5.0,
+                },
+                c: Point3D {
+                    index: 2,
+                    x: 0.0,
+                    y: 5.0,
+                    z: -5.0,
+                },
+            },
+            Face {
+                a: Point3D {
+                    index: 0,
+                    x: -5.0,
+                    y: -5.0,
+                    z: -5.0,
+                },
+                b: Point3D {
+                    index: 2,
+                    x: 0.0,
+                    y: 5.0,
+                    z: -5.0,
+                },
+                c: Point3D {
+                    index: 3,
+                    x: 0.0,
+                    y: 0.0,
+                    z: 5.0,
+                },
+            },
+        ];
+        let regular = faces_to_glb(&faces);
+        let quantized = faces_to_glb_quantized(&faces);
+
+        // Both are valid GLB
+        assert_eq!(&regular[0..4], b"glTF");
+        assert_eq!(&quantized[0..4], b"glTF");
+        assert_eq!(regular.len() % 4, 0);
+        assert_eq!(quantized.len() % 4, 0);
+
+        // Lengths match declared size
+        let reg_total = u32::from_le_bytes([regular[8], regular[9], regular[10], regular[11]]);
+        assert_eq!(reg_total as usize, regular.len());
+        let q_total =
+            u32::from_le_bytes([quantized[8], quantized[9], quantized[10], quantized[11]]);
+        assert_eq!(q_total as usize, quantized.len());
+    }
 }

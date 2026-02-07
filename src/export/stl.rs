@@ -294,4 +294,119 @@ mod tests {
         // 2 tets * 4 faces = 8 total, minus 2 (shared face counted in both) = 6
         assert_eq!(surface.len(), 6);
     }
+
+    #[test]
+    fn test_stl_from_marching_cubes_sphere() {
+        use crate::marching_cubes::marching_cubes;
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
+        let faces = marching_cubes(
+            6,
+            6,
+            6,
+            min,
+            max,
+            &|x, y, z| x * x + y * y + z * z - 1.0,
+            0.0,
+        );
+        assert!(!faces.is_empty());
+
+        let stl = faces_to_stl(&faces, "sphere");
+        assert!(stl.starts_with("solid sphere\n"));
+        assert!(stl.ends_with("endsolid sphere\n"));
+        let facet_count = stl.matches("facet normal").count();
+        assert_eq!(facet_count, faces.len());
+        let vertex_count = stl.matches("vertex ").count();
+        assert_eq!(vertex_count, faces.len() * 3);
+        let loop_count = stl.matches("outer loop").count();
+        assert_eq!(loop_count, faces.len());
+    }
+
+    #[test]
+    fn test_stl_normal_direction_xz_plane() {
+        let face = Face {
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        let result = faces_to_stl(&[face], "xz");
+        // Cross product of (1,0,0)x(0,0,1) = (0,-1,0)
+        assert!(result.contains("facet normal 0 -1 0"));
+    }
+
+    #[test]
+    fn test_stl_face_structure_valid() {
+        let tet = single_tet();
+        let stl = tetrahedra_to_stl(&[tet], "valid");
+        // Every "facet normal" must be followed by "outer loop", 3 vertices, "endloop", "endfacet"
+        let lines: Vec<&str> = stl.lines().collect();
+        let mut i = 0;
+        while i < lines.len() {
+            let trimmed = lines[i].trim();
+            if trimmed.starts_with("facet normal") {
+                assert_eq!(lines[i + 1].trim(), "outer loop");
+                assert!(lines[i + 2].trim().starts_with("vertex "));
+                assert!(lines[i + 3].trim().starts_with("vertex "));
+                assert!(lines[i + 4].trim().starts_with("vertex "));
+                assert_eq!(lines[i + 5].trim(), "endloop");
+                assert_eq!(lines[i + 6].trim(), "endfacet");
+                i += 7;
+            } else {
+                i += 1;
+            }
+        }
+    }
+
+    #[test]
+    fn test_stl_vertex_coordinates_preserved() {
+        let face = Face {
+            a: Point3D {
+                index: 0,
+                x: 1.5,
+                y: 2.5,
+                z: 3.5,
+            },
+            b: Point3D {
+                index: 1,
+                x: -0.5,
+                y: 0.0,
+                z: 10.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: -5.0,
+                z: 0.0,
+            },
+        };
+        let stl = faces_to_stl(&[face], "coords");
+        assert!(stl.contains("vertex 1.5 2.5 3.5"));
+        assert!(stl.contains("vertex -0.5 0 10"));
+        assert!(stl.contains("vertex 0 -5 0"));
+    }
 }
