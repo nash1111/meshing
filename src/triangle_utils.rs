@@ -1,5 +1,6 @@
 use crate::Triangle;
 
+/// Returns `true` if any vertex of `triangle` is also a vertex of `super_triangle`.
 pub fn triangle_contains_vertex_from_super_triangle(
     triangle: &Triangle,
     super_triangle: &Triangle,
@@ -20,8 +21,12 @@ pub fn triangle_contains_vertex_from_super_triangle(
     false
 }
 
+/// Filters out all triangles that share a vertex with the super-triangle.
+///
+/// This is used as the final step of the Bowyer-Watson algorithm to remove
+/// artifacts introduced by the super-triangle.
 pub fn remove_triangles_with_vertices_from_super_triangle(
-    triangles: &Vec<Triangle>,
+    triangles: &[Triangle],
     super_triangle: &Triangle,
 ) -> Vec<Triangle> {
     let mut res: Vec<Triangle> = Vec::new();
