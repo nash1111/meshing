@@ -62,7 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(&out_file_name, (800, 600)).into_drawing_area();
 
     let random_points = create_random_points(num_points);
-    let res = meshing::bowyer_watson(random_points);
+    let res = meshing::bowyer_watson(random_points)?;
 
     root.fill(&WHITE)?;
 

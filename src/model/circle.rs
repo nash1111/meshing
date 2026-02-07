@@ -17,7 +17,13 @@ impl Circle {
     ///
     /// Uses squared distance comparison to avoid computing a square root.
     pub fn point_in_circle(&self, point: &Point2D) -> bool {
-        self.center.distance_squared(point) <= self.radius * self.radius
+        let squared_distance = {
+            let this = &self.center;
+            let dx = this.x - point.x;
+            let dy = this.y - point.y;
+            dx * dx + dy * dy
+        };
+        squared_distance <= (self.radius) * (self.radius)
     }
 }
 

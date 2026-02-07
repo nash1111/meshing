@@ -5,16 +5,7 @@ use crate::{Edge, Point2D, Triangle};
 /// The super-triangle is computed from the bounding box of the input points,
 /// with a margin proportional to the spread of the point set. This ensures
 /// that all points lie well within the super-triangle regardless of scale.
-///
-/// # Panics
-///
-/// Panics if `points` is empty.
 pub fn create_super_triangle(points: &[Point2D]) -> Triangle {
-    assert!(
-        !points.is_empty(),
-        "The input points vector should not be empty."
-    );
-
     let index = 0;
     let mut min_x = f64::MAX;
     let mut min_y = f64::MAX;
