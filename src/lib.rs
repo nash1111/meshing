@@ -29,6 +29,7 @@ mod geometry_3d;
 mod model;
 mod tetrahedron_utils;
 mod triangle_utils;
+pub mod advancing_front;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
