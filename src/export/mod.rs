@@ -1,5 +1,7 @@
 mod obj;
-mod stl;
+pub(crate) mod stl;
 
-pub use obj::triangles_to_obj;
-pub use stl::triangles_to_stl;
+pub use obj::{faces_to_obj, tetrahedra_to_obj, triangles_to_obj};
+pub use stl::{
+    extract_surface_faces, faces_to_stl, tetrahedra_to_stl, triangles_to_stl,
+};
