@@ -1,3 +1,20 @@
+//! A Delaunay triangulation library using the Bowyer-Watson algorithm.
+//!
+//! # Example
+//!
+//! ```
+//! use meshing::{bowyer_watson, Point2D};
+//!
+//! let points = vec![
+//!     Point2D { index: 0, x: 0.0, y: 0.0 },
+//!     Point2D { index: 1, x: 1.0, y: 0.0 },
+//!     Point2D { index: 2, x: 0.0, y: 1.0 },
+//!     Point2D { index: 3, x: 1.0, y: 1.0 },
+//! ];
+//! let triangles = bowyer_watson(points).unwrap();
+//! assert_eq!(triangles.len(), 2);
+//! ```
+
 use error::MeshingError;
 use geometry::{create_super_triangle, edge_is_shared_by_triangles, retriangulate};
 use geometry_3d::{create_super_tetrahedron, face_is_shared_by_tetrahedra, retetrahedralize};
@@ -15,6 +32,15 @@ mod triangle_utils;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
+/// Computes the Delaunay triangulation of a set of 2D points using the
+/// Bowyer-Watson incremental insertion algorithm.
+///
+/// Returns a list of [`Triangle`]s forming the Delaunay triangulation.
+///
+/// # Errors
+///
+/// Returns [`MeshingError::EmptyInput`] if `points` is empty.
+/// Returns [`MeshingError::InsufficientPoints`] if fewer than 3 points are given.
 pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError> {
     if points.is_empty() {
         return Err(MeshingError::EmptyInput);
@@ -24,10 +50,15 @@ pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError
     }
 
     let mut triangulation: Vec<Triangle> = Vec::new();
+
+    // Step 1: Create a super-triangle large enough to contain all input points.
     let super_triangle = create_super_triangle(&points);
     triangulation.push(super_triangle);
 
+    // Step 2: Insert each point one at a time.
     for point in points {
+        // Step 2a: Find all triangles whose circumcircle contains the new point.
+        // These are "bad" triangles that violate the Delaunay condition.
         let mut bad_triangles: Vec<Triangle> = Vec::new();
 
         for triangle in &triangulation {
@@ -37,6 +68,8 @@ pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError
             }
         }
 
+        // Step 2b: Determine the boundary polygon of the "bad" region.
+        // An edge is on the boundary if it is not shared by any other bad triangle.
         let mut polygon: Vec<Edge> = Vec::new();
 
         for triangle in &bad_triangles {
@@ -53,16 +86,20 @@ pub fn bowyer_watson(points: Vec<Point2D>) -> Result<Vec<Triangle>, MeshingError
             }
         }
 
+        // Step 2c: Remove all bad triangles from the triangulation.
         for bad_triangle in &bad_triangles {
             triangulation.retain(|triangle| triangle != bad_triangle);
         }
 
+        // Step 2d: Re-triangulate the polygonal hole by connecting each
+        // boundary edge to the new point.
         for edge in &polygon {
             let new_tri = retriangulate(edge, &point);
             triangulation.push(new_tri);
         }
     }
 
+    // Step 3: Remove any triangles that share vertices with the super-triangle.
     Ok(remove_triangles_with_vertices_from_super_triangle(
         &triangulation,
         &super_triangle,
