@@ -2,6 +2,7 @@ use geometry::{create_super_triangle, edge_is_shared_by_triangles, retriangulate
 pub use model::{Edge, Point2D, Triangle};
 use triangle_utils::remove_triangles_with_vertices_from_super_triangle;
 
+pub mod export;
 mod geometry;
 mod model;
 mod triangle_utils;
