@@ -236,4 +236,117 @@ mod tests {
         assert!(result.contains("7 8 9"));
         assert!(result.contains("0 0 0"));
     }
+
+    #[test]
+    fn test_vtk_from_voxel_mesh() {
+        use crate::voxel_mesh::voxel_mesh;
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
+        let tets = voxel_mesh(min, max, 2, 2, 2, &|_| true);
+        assert!(!tets.is_empty());
+
+        let vtk = tetrahedra_to_vtk(&tets, "voxel_test");
+        assert!(vtk.contains("# vtk DataFile Version 3.0"));
+        assert!(vtk.contains("voxel_test"));
+
+        // Parse point count
+        let points_line = vtk.lines().find(|l| l.starts_with("POINTS ")).unwrap();
+        let num_points: usize = points_line
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse()
+            .unwrap();
+        assert!(num_points > 0);
+
+        // Parse cell count
+        let cells_line = vtk.lines().find(|l| l.starts_with("CELLS ")).unwrap();
+        let num_cells: usize = cells_line
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse()
+            .unwrap();
+        assert_eq!(num_cells, tets.len());
+
+        // All cell types should be 10 (VTK_TETRA)
+        let cell_types_idx = vtk
+            .lines()
+            .position(|l| l.starts_with("CELL_TYPES"))
+            .unwrap();
+        let cell_type_lines: Vec<&str> = vtk
+            .lines()
+            .skip(cell_types_idx + 1)
+            .take(num_cells)
+            .collect();
+        for line in cell_type_lines {
+            assert_eq!(line.trim(), "10");
+        }
+    }
+
+    #[test]
+    fn test_vtk_cell_indices_valid() {
+        let tet = single_tet();
+        let vtk = tetrahedra_to_vtk(&[tet], "idx_check");
+
+        // Parse number of points
+        let points_line = vtk.lines().find(|l| l.starts_with("POINTS ")).unwrap();
+        let num_points: usize = points_line
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse()
+            .unwrap();
+
+        // Find cell lines and verify all indices are in range
+        let cells_idx = vtk.lines().position(|l| l.starts_with("CELLS ")).unwrap();
+        let cells_line = vtk.lines().nth(cells_idx).unwrap();
+        let num_cells: usize = cells_line
+            .split_whitespace()
+            .nth(1)
+            .unwrap()
+            .parse()
+            .unwrap();
+
+        for line in vtk.lines().skip(cells_idx + 1).take(num_cells) {
+            let parts: Vec<usize> = line
+                .split_whitespace()
+                .map(|s| s.parse::<usize>().unwrap())
+                .collect();
+            assert_eq!(parts[0], 4); // 4 vertices per tet
+            for &idx in &parts[1..] {
+                assert!(idx < num_points);
+            }
+        }
+    }
+
+    #[test]
+    fn test_vtk_two_tets_shared_vertices() {
+        let p = |i: i64, x: f64, y: f64, z: f64| Point3D { index: i, x, y, z };
+        let tet1 = Tetrahedron {
+            a: p(0, 0.0, 0.0, 0.0),
+            b: p(1, 1.0, 0.0, 0.0),
+            c: p(2, 0.0, 1.0, 0.0),
+            d: p(3, 0.0, 0.0, 1.0),
+        };
+        let tet2 = Tetrahedron {
+            a: p(1, 1.0, 0.0, 0.0),
+            b: p(2, 0.0, 1.0, 0.0),
+            c: p(3, 0.0, 0.0, 1.0),
+            d: p(4, 1.0, 1.0, 1.0),
+        };
+        let vtk = tetrahedra_to_vtk(&[tet1, tet2], "two_tets");
+        assert!(vtk.contains("POINTS 5 double"));
+        assert!(vtk.contains("CELLS 2 10"));
+    }
 }
