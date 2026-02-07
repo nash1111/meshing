@@ -128,6 +128,35 @@ mod tests {
     }
 
     #[test]
+    fn test_all_tetrahedra_have_nonzero_volume() {
+        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let result = octree_mesh(min, max, 2, &|_| true);
+        for tet in &result {
+            assert!(tet.signed_volume().abs() > 1e-15, "Degenerate tetrahedron found");
+        }
+    }
+
+    #[test]
+    fn test_depth_2_cell_count() {
+        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let result = octree_mesh(min, max, 2, &|_| true);
+        // depth=2 → 64 leaf cells × 5 tets = 320
+        assert_eq!(result.len(), 320);
+    }
+
+    #[test]
+    fn test_partial_containment() {
+        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        // Only accept cells whose center x < 1.0 (half the domain)
+        let result = octree_mesh(min, max, 1, &|p| p.x < 1.0);
+        // 8 octants at depth 1, 4 have center.x < 1.0
+        assert_eq!(result.len(), 4 * 5);
+    }
+
+    #[test]
     fn test_empty_domain() {
         let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
         let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };

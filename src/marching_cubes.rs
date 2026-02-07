@@ -508,6 +508,40 @@ mod tests {
     }
 
     #[test]
+    fn test_all_below_iso_returns_empty() {
+        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let field = |_x: f64, _y: f64, _z: f64| -10.0;
+        let faces = marching_cubes(5, 5, 5, min, max, &field, 0.0);
+        assert!(faces.is_empty(), "All below iso should produce no faces");
+    }
+
+    #[test]
+    fn test_higher_resolution_produces_more_faces() {
+        let min = Point3D { index: 0, x: -2.0, y: -2.0, z: -2.0 };
+        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        let field = |x: f64, y: f64, z: f64| x * x + y * y + z * z - 1.0;
+        let low = marching_cubes(5, 5, 5, min, max, &field, 0.0);
+        let high = marching_cubes(10, 10, 10, min, max, &field, 0.0);
+        assert!(high.len() > low.len(), "Higher resolution should produce more faces");
+    }
+
+    #[test]
+    fn test_torus_isosurface() {
+        let min = Point3D { index: 0, x: -3.0, y: -3.0, z: -1.5 };
+        let max = Point3D { index: 0, x: 3.0, y: 3.0, z: 1.5 };
+        // Torus: (sqrt(x²+y²) - R)² + z² - r² = 0, R=2, r=0.5
+        let field = |x: f64, y: f64, z: f64| {
+            let r_big = 2.0;
+            let r_small = 0.5;
+            let xy = (x * x + y * y).sqrt();
+            (xy - r_big) * (xy - r_big) + z * z - r_small * r_small
+        };
+        let faces = marching_cubes(15, 15, 8, min, max, &field, 0.0);
+        assert!(!faces.is_empty(), "Torus should produce faces");
+    }
+
+    #[test]
     fn test_plane_isosurface() {
         let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
         let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };

@@ -198,6 +198,37 @@ mod tests {
     }
 
     #[test]
+    fn test_all_tetrahedra_have_nonzero_volume() {
+        let p0 = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let p1 = Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 };
+        let p2 = Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 };
+        let p3 = Point3D { index: 3, x: 0.5, y: 0.3, z: 1.0 };
+
+        let faces = vec![
+            Face { a: p0, b: p2, c: p1 },
+            Face { a: p0, b: p1, c: p3 },
+            Face { a: p1, b: p2, c: p3 },
+            Face { a: p0, b: p3, c: p2 },
+        ];
+        let points = vec![p0, p1, p2, p3];
+        let result = advancing_front(faces, points);
+        for tet in &result {
+            assert!(tet.signed_volume().abs() > 1e-15, "Degenerate tetrahedron found");
+        }
+    }
+
+    #[test]
+    fn test_faces_no_points() {
+        // Faces provided but no points — should still generate via normal projection
+        let p0 = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let p1 = Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 };
+        let p2 = Point3D { index: 2, x: 0.5, y: 1.0, z: 0.0 };
+        let faces = vec![Face { a: p0, b: p1, c: p2 }];
+        let result = advancing_front(faces, Vec::new());
+        assert!(!result.is_empty());
+    }
+
+    #[test]
     fn test_cube_surface() {
         // 8 vertices of a unit cube
         let p = [
