@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev
 
     - name: Set up Rust toolchain
       uses: dtolnay/rust-toolchain@master
@@ -19,11 +22,11 @@ jobs:
         toolchain: stable
         components: rustfmt, clippy
 
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
     - name: Check with cargo
       run: cargo check
 
     - name: Test with cargo
       run: cargo test
-
-    - name: Cache dependencies
-      uses: Swatinem/rust-cache@v1

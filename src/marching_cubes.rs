@@ -396,20 +396,19 @@ pub fn marching_cubes(
 
                 // 8 corner positions of this cube (standard ordering)
                 let corners = [
-                    (x, y, z),                   // 0
-                    (x + dx, y, z),              // 1
-                    (x + dx, y + dy, z),         // 2
-                    (x, y + dy, z),              // 3
-                    (x, y, z + dz),              // 4
-                    (x + dx, y, z + dz),         // 5
-                    (x + dx, y + dy, z + dz),    // 6
-                    (x, y + dy, z + dz),         // 7
+                    (x, y, z),                // 0
+                    (x + dx, y, z),           // 1
+                    (x + dx, y + dy, z),      // 2
+                    (x, y + dy, z),           // 3
+                    (x, y, z + dz),           // 4
+                    (x + dx, y, z + dz),      // 5
+                    (x + dx, y + dy, z + dz), // 6
+                    (x, y + dy, z + dz),      // 7
                 ];
 
                 // Sample scalar field at each corner
-                let values: [f64; 8] = std::array::from_fn(|n| {
-                    scalar_field(corners[n].0, corners[n].1, corners[n].2)
-                });
+                let values: [f64; 8] =
+                    std::array::from_fn(|n| scalar_field(corners[n].0, corners[n].1, corners[n].2));
 
                 // Build cube index: bit n is set if corner n is above the iso-value
                 let mut cube_index: usize = 0;
@@ -487,8 +486,18 @@ mod tests {
 
     #[test]
     fn test_sphere_isosurface() {
-        let min = Point3D { index: 0, x: -2.0, y: -2.0, z: -2.0 };
-        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
         let field = |x: f64, y: f64, z: f64| x * x + y * y + z * z - 1.0;
         let faces = marching_cubes(10, 10, 10, min, max, &field, 0.0);
         assert!(!faces.is_empty(), "Sphere should produce faces");
@@ -496,8 +505,18 @@ mod tests {
 
     #[test]
     fn test_all_above_iso_returns_empty() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         // Field always returns 10.0, iso_value is 0.0 → all corners above iso
         let field = |_x: f64, _y: f64, _z: f64| 10.0;
         let faces = marching_cubes(5, 5, 5, min, max, &field, 0.0);
@@ -506,8 +525,18 @@ mod tests {
 
     #[test]
     fn test_faces_have_distinct_vertices() {
-        let min = Point3D { index: 0, x: -2.0, y: -2.0, z: -2.0 };
-        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
         let field = |x: f64, y: f64, z: f64| x * x + y * y + z * z - 1.0;
         let faces = marching_cubes(10, 10, 10, min, max, &field, 0.0);
         for face in &faces {
@@ -515,15 +544,27 @@ mod tests {
             let ab = (a.x - b.x).abs() + (a.y - b.y).abs() + (a.z - b.z).abs();
             let ac = (a.x - c.x).abs() + (a.y - c.y).abs() + (a.z - c.z).abs();
             let bc = (b.x - c.x).abs() + (b.y - c.y).abs() + (b.z - c.z).abs();
-            assert!(ab > 1e-15 || ac > 1e-15 || bc > 1e-15,
-                "Face should have at least two distinct vertices");
+            assert!(
+                ab > 1e-15 || ac > 1e-15 || bc > 1e-15,
+                "Face should have at least two distinct vertices"
+            );
         }
     }
 
     #[test]
     fn test_all_below_iso_returns_empty() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let field = |_x: f64, _y: f64, _z: f64| -10.0;
         let faces = marching_cubes(5, 5, 5, min, max, &field, 0.0);
         assert!(faces.is_empty(), "All below iso should produce no faces");
@@ -531,18 +572,41 @@ mod tests {
 
     #[test]
     fn test_higher_resolution_produces_more_faces() {
-        let min = Point3D { index: 0, x: -2.0, y: -2.0, z: -2.0 };
-        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        let min = Point3D {
+            index: 0,
+            x: -2.0,
+            y: -2.0,
+            z: -2.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
         let field = |x: f64, y: f64, z: f64| x * x + y * y + z * z - 1.0;
         let low = marching_cubes(5, 5, 5, min, max, &field, 0.0);
         let high = marching_cubes(10, 10, 10, min, max, &field, 0.0);
-        assert!(high.len() > low.len(), "Higher resolution should produce more faces");
+        assert!(
+            high.len() > low.len(),
+            "Higher resolution should produce more faces"
+        );
     }
 
     #[test]
     fn test_torus_isosurface() {
-        let min = Point3D { index: 0, x: -3.0, y: -3.0, z: -1.5 };
-        let max = Point3D { index: 0, x: 3.0, y: 3.0, z: 1.5 };
+        let min = Point3D {
+            index: 0,
+            x: -3.0,
+            y: -3.0,
+            z: -1.5,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 3.0,
+            y: 3.0,
+            z: 1.5,
+        };
         // Torus: (sqrt(x²+y²) - R)² + z² - r² = 0, R=2, r=0.5
         let field = |x: f64, y: f64, z: f64| {
             let r_big = 2.0;
@@ -556,8 +620,18 @@ mod tests {
 
     #[test]
     fn test_plane_isosurface() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let field = |_x: f64, _y: f64, z: f64| z;
         let faces = marching_cubes(5, 5, 5, min, max, &field, 0.5);
         assert!(!faces.is_empty(), "Plane isosurface should produce faces");

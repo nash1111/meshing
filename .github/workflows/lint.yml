@@ -11,10 +11,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev
+
     - name: Set up Rust toolchain
       uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: 1.70.0
+        toolchain: stable
         components: rustfmt, clippy
 
     - name: Cache dependencies

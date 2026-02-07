@@ -45,9 +45,21 @@ pub fn faces_to_glb_quantized(faces: &[Face]) -> Vec<u8> {
 
     // Compute scale and offset for quantization
     let scale = [
-        if bb_max[0] > bb_min[0] { bb_max[0] - bb_min[0] } else { 1.0 },
-        if bb_max[1] > bb_min[1] { bb_max[1] - bb_min[1] } else { 1.0 },
-        if bb_max[2] > bb_min[2] { bb_max[2] - bb_min[2] } else { 1.0 },
+        if bb_max[0] > bb_min[0] {
+            bb_max[0] - bb_min[0]
+        } else {
+            1.0
+        },
+        if bb_max[1] > bb_min[1] {
+            bb_max[1] - bb_min[1]
+        } else {
+            1.0
+        },
+        if bb_max[2] > bb_min[2] {
+            bb_max[2] - bb_min[2]
+        } else {
+            1.0
+        },
     ];
     let offset = bb_min;
 
@@ -109,7 +121,10 @@ fn collect_unique_vertices(faces: &[Face]) -> (Vec<[f32; 3]>, Vec<u32>) {
     let mut indices = Vec::with_capacity(faces.len() * 3);
     for face in faces {
         for pt in [face.a, face.b, face.c] {
-            let pos = vertex_list.iter().position(|(idx, _)| *idx == pt.index).unwrap();
+            let pos = vertex_list
+                .iter()
+                .position(|(idx, _)| *idx == pt.index)
+                .unwrap();
             indices.push(pos as u32);
         }
     }
@@ -123,8 +138,12 @@ fn bounding_box(vertices: &[[f32; 3]]) -> ([f32; 3], [f32; 3]) {
     let mut max = [f32::MIN; 3];
     for v in vertices {
         for i in 0..3 {
-            if v[i] < min[i] { min[i] = v[i]; }
-            if v[i] > max[i] { max[i] = v[i]; }
+            if v[i] < min[i] {
+                min[i] = v[i];
+            }
+            if v[i] > max[i] {
+                max[i] = v[i];
+            }
         }
     }
     (min, max)
@@ -189,7 +208,14 @@ fn build_glb(json_str: &str, bin_buffer: &[u8]) -> Vec<u8> {
     let json_padded_len = (json_bytes.len() + 3) & !3;
     let bin_padded_len = (bin_buffer.len() + 3) & !3;
 
-    let total_length = 12 + 8 + json_padded_len + if bin_buffer.is_empty() { 0 } else { 8 + bin_padded_len };
+    let total_length = 12
+        + 8
+        + json_padded_len
+        + if bin_buffer.is_empty() {
+            0
+        } else {
+            8 + bin_padded_len
+        };
 
     let mut glb = Vec::with_capacity(total_length);
 
@@ -202,7 +228,10 @@ fn build_glb(json_str: &str, bin_buffer: &[u8]) -> Vec<u8> {
     glb.extend_from_slice(&(json_padded_len as u32).to_le_bytes());
     glb.extend_from_slice(&0x4E4F534Au32.to_le_bytes());
     glb.extend_from_slice(json_bytes);
-    glb.extend(std::iter::repeat_n(b' ', json_padded_len - json_bytes.len()));
+    glb.extend(std::iter::repeat_n(
+        b' ',
+        json_padded_len - json_bytes.len(),
+    ));
 
     // Binary chunk (only if there's data)
     if !bin_buffer.is_empty() {
@@ -223,9 +252,24 @@ mod tests {
 
     fn test_face() -> Face {
         Face {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
         }
     }
 
@@ -263,14 +307,44 @@ mod tests {
         // may make the total GLB larger, but vertex data savings scale.
         let faces = vec![
             Face {
-                a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-                b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-                c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
+                a: Point3D {
+                    index: 0,
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                b: Point3D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                c: Point3D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                    z: 0.0,
+                },
             },
             Face {
-                a: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-                b: Point3D { index: 3, x: 1.0, y: 1.0, z: 0.0 },
-                c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
+                a: Point3D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                b: Point3D {
+                    index: 3,
+                    x: 1.0,
+                    y: 1.0,
+                    z: 0.0,
+                },
+                c: Point3D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                    z: 0.0,
+                },
             },
         ];
         let regular = faces_to_glb(&faces);
@@ -279,7 +353,9 @@ mod tests {
         assert_eq!(&regular[0..4], b"glTF");
         assert_eq!(&quantized[0..4], b"glTF");
         // Quantized uses int16 component type
-        let q_json_len = u32::from_le_bytes([quantized[12], quantized[13], quantized[14], quantized[15]]) as usize;
+        let q_json_len =
+            u32::from_le_bytes([quantized[12], quantized[13], quantized[14], quantized[15]])
+                as usize;
         let q_json = std::str::from_utf8(&quantized[20..20 + q_json_len]).unwrap();
         assert!(q_json.contains("5122")); // SHORT component type
     }
@@ -312,10 +388,30 @@ mod tests {
     #[test]
     fn test_tetrahedra_to_glb_quantized() {
         let tet = Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let glb = tetrahedra_to_glb_quantized(&[tet]);
         assert_eq!(&glb[0..4], b"glTF");

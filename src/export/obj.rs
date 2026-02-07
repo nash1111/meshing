@@ -24,9 +24,21 @@ pub fn triangles_to_obj(triangles: &[Triangle]) -> String {
     }
 
     for triangle in triangles {
-        let a_pos = vertices.iter().position(|(idx, _, _)| *idx == triangle.a.index).unwrap() + 1;
-        let b_pos = vertices.iter().position(|(idx, _, _)| *idx == triangle.b.index).unwrap() + 1;
-        let c_pos = vertices.iter().position(|(idx, _, _)| *idx == triangle.c.index).unwrap() + 1;
+        let a_pos = vertices
+            .iter()
+            .position(|(idx, _, _)| *idx == triangle.a.index)
+            .unwrap()
+            + 1;
+        let b_pos = vertices
+            .iter()
+            .position(|(idx, _, _)| *idx == triangle.b.index)
+            .unwrap()
+            + 1;
+        let c_pos = vertices
+            .iter()
+            .position(|(idx, _, _)| *idx == triangle.c.index)
+            .unwrap()
+            + 1;
         result.push_str(&format!("f {} {} {}\n", a_pos, b_pos, c_pos));
     }
 
@@ -61,9 +73,21 @@ pub fn faces_to_obj(faces: &[Face]) -> String {
     }
 
     for face in faces {
-        let a_pos = vertices.iter().position(|(idx, _)| *idx == face.a.index).unwrap() + 1;
-        let b_pos = vertices.iter().position(|(idx, _)| *idx == face.b.index).unwrap() + 1;
-        let c_pos = vertices.iter().position(|(idx, _)| *idx == face.c.index).unwrap() + 1;
+        let a_pos = vertices
+            .iter()
+            .position(|(idx, _)| *idx == face.a.index)
+            .unwrap()
+            + 1;
+        let b_pos = vertices
+            .iter()
+            .position(|(idx, _)| *idx == face.b.index)
+            .unwrap()
+            + 1;
+        let c_pos = vertices
+            .iter()
+            .position(|(idx, _)| *idx == face.c.index)
+            .unwrap()
+            + 1;
         result.push_str(&format!("f {} {} {}\n", a_pos, b_pos, c_pos));
     }
 
@@ -84,9 +108,21 @@ mod tests {
     #[test]
     fn test_triangles_to_obj_single_triangle() {
         let triangles = vec![Triangle {
-            a: Point2D { index: 0, x: 0.0, y: 0.0 },
-            b: Point2D { index: 1, x: 1.0, y: 0.0 },
-            c: Point2D { index: 2, x: 0.0, y: 1.0 },
+            a: Point2D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+            },
+            b: Point2D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+            },
+            c: Point2D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+            },
         }];
 
         let result = triangles_to_obj(&triangles);
@@ -100,20 +136,45 @@ mod tests {
     fn test_triangles_to_obj_shared_vertices() {
         let triangles = vec![
             Triangle {
-                a: Point2D { index: 0, x: 0.0, y: 0.0 },
-                b: Point2D { index: 1, x: 1.0, y: 0.0 },
-                c: Point2D { index: 2, x: 0.0, y: 1.0 },
+                a: Point2D {
+                    index: 0,
+                    x: 0.0,
+                    y: 0.0,
+                },
+                b: Point2D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                },
+                c: Point2D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                },
             },
             Triangle {
-                a: Point2D { index: 1, x: 1.0, y: 0.0 },
-                b: Point2D { index: 3, x: 1.0, y: 1.0 },
-                c: Point2D { index: 2, x: 0.0, y: 1.0 },
+                a: Point2D {
+                    index: 1,
+                    x: 1.0,
+                    y: 0.0,
+                },
+                b: Point2D {
+                    index: 3,
+                    x: 1.0,
+                    y: 1.0,
+                },
+                c: Point2D {
+                    index: 2,
+                    x: 0.0,
+                    y: 1.0,
+                },
             },
         ];
 
         let result = triangles_to_obj(&triangles);
         // Should have 4 unique vertices, not 6
-        let vertex_count = result.matches("\nv ").count() + if result.starts_with("v ") { 1 } else { 0 };
+        let vertex_count =
+            result.matches("\nv ").count() + if result.starts_with("v ") { 1 } else { 0 };
         assert_eq!(vertex_count, 4);
         // Two face lines
         let face_count = result.matches("f ").count();
@@ -123,14 +184,34 @@ mod tests {
     #[test]
     fn test_tetrahedra_to_obj_single() {
         let tet = Tetrahedron {
-            a: Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 },
-            b: Point3D { index: 1, x: 1.0, y: 0.0, z: 0.0 },
-            c: Point3D { index: 2, x: 0.0, y: 1.0, z: 0.0 },
-            d: Point3D { index: 3, x: 0.0, y: 0.0, z: 1.0 },
+            a: Point3D {
+                index: 0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+            d: Point3D {
+                index: 3,
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let result = tetrahedra_to_obj(&[tet]);
-        let vertex_count = result.matches("\nv ").count()
-            + if result.starts_with("v ") { 1 } else { 0 };
+        let vertex_count =
+            result.matches("\nv ").count() + if result.starts_with("v ") { 1 } else { 0 };
         assert_eq!(vertex_count, 4);
         let face_count = result.matches("f ").count();
         assert_eq!(face_count, 4);
@@ -145,9 +226,24 @@ mod tests {
     #[test]
     fn test_faces_to_obj_3d_vertices() {
         let face = Face {
-            a: Point3D { index: 0, x: 1.0, y: 2.0, z: 3.0 },
-            b: Point3D { index: 1, x: 4.0, y: 5.0, z: 6.0 },
-            c: Point3D { index: 2, x: 7.0, y: 8.0, z: 9.0 },
+            a: Point3D {
+                index: 0,
+                x: 1.0,
+                y: 2.0,
+                z: 3.0,
+            },
+            b: Point3D {
+                index: 1,
+                x: 4.0,
+                y: 5.0,
+                z: 6.0,
+            },
+            c: Point3D {
+                index: 2,
+                x: 7.0,
+                y: 8.0,
+                z: 9.0,
+            },
         };
         let result = faces_to_obj(&[face]);
         assert!(result.contains("v 1 2 3"));

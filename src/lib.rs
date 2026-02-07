@@ -22,18 +22,18 @@ pub use model::{Circle, Edge, Face, Point2D, Point3D, Sphere, Tetrahedron, Trian
 use tetrahedron_utils::remove_tetrahedra_with_vertices_from_super_tetrahedron;
 use triangle_utils::remove_triangles_with_vertices_from_super_triangle;
 
+pub mod advancing_front;
+pub mod delaunay_refinement;
 pub mod error;
 pub mod export;
 mod geometry;
 mod geometry_3d;
-mod model;
-mod tetrahedron_utils;
-mod triangle_utils;
-pub mod advancing_front;
-pub mod delaunay_refinement;
 pub mod marching_cubes;
+mod model;
 pub mod octree;
 pub mod pipeline;
+mod tetrahedron_utils;
+mod triangle_utils;
 pub mod voxel_mesh;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
@@ -172,10 +172,7 @@ pub fn bowyer_watson_3d(points: Vec<Point3D>) -> Vec<Tetrahedron> {
         }
     }
 
-    remove_tetrahedra_with_vertices_from_super_tetrahedron(
-        &tetrahedralization,
-        &super_tetrahedron,
-    )
+    remove_tetrahedra_with_vertices_from_super_tetrahedron(&tetrahedralization, &super_tetrahedron)
 }
 
 #[cfg(test)]

@@ -32,22 +32,87 @@ fn subdivide(
         let idx = *next_index;
         *next_index += 8;
         let p = [
-            Point3D { index: idx, x: b.min_x, y: b.min_y, z: b.min_z },
-            Point3D { index: idx + 1, x: b.max_x, y: b.min_y, z: b.min_z },
-            Point3D { index: idx + 2, x: b.max_x, y: b.max_y, z: b.min_z },
-            Point3D { index: idx + 3, x: b.min_x, y: b.max_y, z: b.min_z },
-            Point3D { index: idx + 4, x: b.min_x, y: b.min_y, z: b.max_z },
-            Point3D { index: idx + 5, x: b.max_x, y: b.min_y, z: b.max_z },
-            Point3D { index: idx + 6, x: b.max_x, y: b.max_y, z: b.max_z },
-            Point3D { index: idx + 7, x: b.min_x, y: b.max_y, z: b.max_z },
+            Point3D {
+                index: idx,
+                x: b.min_x,
+                y: b.min_y,
+                z: b.min_z,
+            },
+            Point3D {
+                index: idx + 1,
+                x: b.max_x,
+                y: b.min_y,
+                z: b.min_z,
+            },
+            Point3D {
+                index: idx + 2,
+                x: b.max_x,
+                y: b.max_y,
+                z: b.min_z,
+            },
+            Point3D {
+                index: idx + 3,
+                x: b.min_x,
+                y: b.max_y,
+                z: b.min_z,
+            },
+            Point3D {
+                index: idx + 4,
+                x: b.min_x,
+                y: b.min_y,
+                z: b.max_z,
+            },
+            Point3D {
+                index: idx + 5,
+                x: b.max_x,
+                y: b.min_y,
+                z: b.max_z,
+            },
+            Point3D {
+                index: idx + 6,
+                x: b.max_x,
+                y: b.max_y,
+                z: b.max_z,
+            },
+            Point3D {
+                index: idx + 7,
+                x: b.min_x,
+                y: b.max_y,
+                z: b.max_z,
+            },
         ];
 
         // Standard 5-tetrahedra decomposition of a hexahedron
-        tetrahedra.push(Tetrahedron { a: p[0], b: p[1], c: p[3], d: p[4] });
-        tetrahedra.push(Tetrahedron { a: p[1], b: p[2], c: p[3], d: p[6] });
-        tetrahedra.push(Tetrahedron { a: p[1], b: p[4], c: p[5], d: p[6] });
-        tetrahedra.push(Tetrahedron { a: p[3], b: p[4], c: p[6], d: p[7] });
-        tetrahedra.push(Tetrahedron { a: p[1], b: p[3], c: p[4], d: p[6] });
+        tetrahedra.push(Tetrahedron {
+            a: p[0],
+            b: p[1],
+            c: p[3],
+            d: p[4],
+        });
+        tetrahedra.push(Tetrahedron {
+            a: p[1],
+            b: p[2],
+            c: p[3],
+            d: p[6],
+        });
+        tetrahedra.push(Tetrahedron {
+            a: p[1],
+            b: p[4],
+            c: p[5],
+            d: p[6],
+        });
+        tetrahedra.push(Tetrahedron {
+            a: p[3],
+            b: p[4],
+            c: p[6],
+            d: p[7],
+        });
+        tetrahedra.push(Tetrahedron {
+            a: p[1],
+            b: p[3],
+            c: p[4],
+            d: p[6],
+        });
         return;
     }
 
@@ -56,18 +121,81 @@ fn subdivide(
     let mid_z = (b.min_z + b.max_z) / 2.0;
 
     let octants = [
-        Bounds { min_x: b.min_x, min_y: b.min_y, min_z: b.min_z, max_x: mid_x, max_y: mid_y, max_z: mid_z },
-        Bounds { min_x: mid_x, min_y: b.min_y, min_z: b.min_z, max_x: b.max_x, max_y: mid_y, max_z: mid_z },
-        Bounds { min_x: b.min_x, min_y: mid_y, min_z: b.min_z, max_x: mid_x, max_y: b.max_y, max_z: mid_z },
-        Bounds { min_x: mid_x, min_y: mid_y, min_z: b.min_z, max_x: b.max_x, max_y: b.max_y, max_z: mid_z },
-        Bounds { min_x: b.min_x, min_y: b.min_y, min_z: mid_z, max_x: mid_x, max_y: mid_y, max_z: b.max_z },
-        Bounds { min_x: mid_x, min_y: b.min_y, min_z: mid_z, max_x: b.max_x, max_y: mid_y, max_z: b.max_z },
-        Bounds { min_x: b.min_x, min_y: mid_y, min_z: mid_z, max_x: mid_x, max_y: b.max_y, max_z: b.max_z },
-        Bounds { min_x: mid_x, min_y: mid_y, min_z: mid_z, max_x: b.max_x, max_y: b.max_y, max_z: b.max_z },
+        Bounds {
+            min_x: b.min_x,
+            min_y: b.min_y,
+            min_z: b.min_z,
+            max_x: mid_x,
+            max_y: mid_y,
+            max_z: mid_z,
+        },
+        Bounds {
+            min_x: mid_x,
+            min_y: b.min_y,
+            min_z: b.min_z,
+            max_x: b.max_x,
+            max_y: mid_y,
+            max_z: mid_z,
+        },
+        Bounds {
+            min_x: b.min_x,
+            min_y: mid_y,
+            min_z: b.min_z,
+            max_x: mid_x,
+            max_y: b.max_y,
+            max_z: mid_z,
+        },
+        Bounds {
+            min_x: mid_x,
+            min_y: mid_y,
+            min_z: b.min_z,
+            max_x: b.max_x,
+            max_y: b.max_y,
+            max_z: mid_z,
+        },
+        Bounds {
+            min_x: b.min_x,
+            min_y: b.min_y,
+            min_z: mid_z,
+            max_x: mid_x,
+            max_y: mid_y,
+            max_z: b.max_z,
+        },
+        Bounds {
+            min_x: mid_x,
+            min_y: b.min_y,
+            min_z: mid_z,
+            max_x: b.max_x,
+            max_y: mid_y,
+            max_z: b.max_z,
+        },
+        Bounds {
+            min_x: b.min_x,
+            min_y: mid_y,
+            min_z: mid_z,
+            max_x: mid_x,
+            max_y: b.max_y,
+            max_z: b.max_z,
+        },
+        Bounds {
+            min_x: mid_x,
+            min_y: mid_y,
+            min_z: mid_z,
+            max_x: b.max_x,
+            max_y: b.max_y,
+            max_z: b.max_z,
+        },
     ];
 
     for octant in &octants {
-        subdivide(*octant, depth + 1, max_depth, is_inside, next_index, tetrahedra);
+        subdivide(
+            *octant,
+            depth + 1,
+            max_depth,
+            is_inside,
+            next_index,
+            tetrahedra,
+        );
     }
 }
 
@@ -115,7 +243,14 @@ pub fn octree_mesh(
         max_y: max.y,
         max_z: max.z,
     };
-    subdivide(bounds, 0, max_depth, is_inside, &mut next_index, &mut tetrahedra);
+    subdivide(
+        bounds,
+        0,
+        max_depth,
+        is_inside,
+        &mut next_index,
+        &mut tetrahedra,
+    );
     tetrahedra
 }
 
@@ -125,45 +260,96 @@ mod tests {
 
     #[test]
     fn test_single_cell_always_inside() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = octree_mesh(min, max, 0, &|_| true);
         assert_eq!(result.len(), 5);
     }
 
     #[test]
     fn test_depth_1_all_inside() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = octree_mesh(min, max, 1, &|_| true);
         assert_eq!(result.len(), 40);
     }
 
     #[test]
     fn test_sphere_containment() {
-        let min = Point3D { index: 0, x: -1.0, y: -1.0, z: -1.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
-        let result = octree_mesh(min, max, 2, &|p| {
-            p.x * p.x + p.y * p.y + p.z * p.z <= 1.0
-        });
+        let min = Point3D {
+            index: 0,
+            x: -1.0,
+            y: -1.0,
+            z: -1.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
+        let result = octree_mesh(min, max, 2, &|p| p.x * p.x + p.y * p.y + p.z * p.z <= 1.0);
         assert!(!result.is_empty());
         assert!(result.len() < 64 * 5);
     }
 
     #[test]
     fn test_all_tetrahedra_have_nonzero_volume() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = octree_mesh(min, max, 2, &|_| true);
         for tet in &result {
-            assert!(tet.signed_volume().abs() > 1e-15, "Degenerate tetrahedron found");
+            assert!(
+                tet.signed_volume().abs() > 1e-15,
+                "Degenerate tetrahedron found"
+            );
         }
     }
 
     #[test]
     fn test_depth_2_cell_count() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = octree_mesh(min, max, 2, &|_| true);
         // depth=2 → 64 leaf cells × 5 tets = 320
         assert_eq!(result.len(), 320);
@@ -171,8 +357,18 @@ mod tests {
 
     #[test]
     fn test_partial_containment() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 2.0, y: 2.0, z: 2.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 2.0,
+            y: 2.0,
+            z: 2.0,
+        };
         // Only accept cells whose center x < 1.0 (half the domain)
         let result = octree_mesh(min, max, 1, &|p| p.x < 1.0);
         // 8 octants at depth 1, 4 have center.x < 1.0
@@ -181,8 +377,18 @@ mod tests {
 
     #[test]
     fn test_empty_domain() {
-        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
-        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let min = Point3D {
+            index: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+        let max = Point3D {
+            index: 0,
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        };
         let result = octree_mesh(min, max, 2, &|_| false);
         assert!(result.is_empty());
     }
