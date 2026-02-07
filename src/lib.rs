@@ -30,6 +30,7 @@ mod model;
 mod tetrahedron_utils;
 mod triangle_utils;
 pub mod advancing_front;
+pub mod marching_cubes;
 pub mod octree;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
