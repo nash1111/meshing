@@ -5,6 +5,8 @@ use triangle_utils::remove_triangles_with_vertices_from_super_triangle;
 mod geometry;
 mod model;
 mod triangle_utils;
+#[cfg(target_arch = "wasm32")]
+pub mod wasm;
 
 pub fn bowyer_watson(points: Vec<Point2D>) -> Vec<Triangle> {
     let mut triangulation: Vec<Triangle> = Vec::new();
