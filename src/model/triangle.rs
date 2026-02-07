@@ -1,7 +1,13 @@
+use std::fmt;
+
 use crate::model::circle::*;
 use crate::model::edge::*;
 use crate::model::point_2d::*;
 
+/// A triangle defined by three [`Point2D`] vertices.
+///
+/// Equality is based on whether two triangles share the same set of edges,
+/// regardless of vertex ordering.
 #[derive(Debug, Clone, Copy)]
 pub struct Triangle {
     pub a: Point2D,
@@ -10,6 +16,11 @@ pub struct Triangle {
 }
 
 impl Triangle {
+    /// Computes the circumcenter of this triangle.
+    ///
+    /// The circumcenter is the point equidistant from all three vertices,
+    /// i.e., the center of the circumscribed circle. The returned point
+    /// uses `i64::MAX` as its index since it is a derived point.
     pub fn circumcenter(&self) -> Point2D {
         let d = 2.0
             * ((self.a.x - self.c.x) * (self.b.y - self.c.y)
@@ -42,12 +53,18 @@ impl Triangle {
         }
     }
 
+    /// Generates the circumscribed circle (circumcircle) of this triangle.
+    ///
+    /// The circumcircle passes through all three vertices of the triangle.
     pub fn generate_circumcircle(&self) -> Circle {
         let center = self.circumcenter();
         let radius = center.distance(&self.a);
         Circle { center, radius }
     }
 
+    /// Returns the three edges of this triangle as an array.
+    ///
+    /// The edges are returned in order: `(a,b)`, `(b,c)`, `(c,a)`.
     pub fn edges(&self) -> [Edge; 3] {
         [
             Edge {
@@ -65,11 +82,13 @@ impl Triangle {
         ]
     }
 
+    /// Returns `true` if this triangle contains the given edge (as a pair of points).
     pub fn contains_edge(&self, edge: (Point2D, Point2D)) -> bool {
         let points = [self.a, self.b, self.c];
         points.contains(&edge.0) && points.contains(&edge.1)
     }
 
+    /// Returns the three vertices of this triangle as an array.
     pub fn vertices(&self) -> [Point2D; 3] {
         [self.a, self.b, self.c]
     }
@@ -80,5 +99,11 @@ impl PartialEq for Triangle {
         self.contains_edge((other.a, other.b))
             && self.contains_edge((other.b, other.c))
             && self.contains_edge((other.c, other.a))
+    }
+}
+
+impl fmt::Display for Triangle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Triangle({}, {}, {})", self.a, self.b, self.c)
     }
 }
