@@ -32,6 +32,7 @@ mod triangle_utils;
 pub mod advancing_front;
 pub mod marching_cubes;
 pub mod octree;
+pub mod voxel_mesh;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
