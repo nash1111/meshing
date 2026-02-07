@@ -18,7 +18,7 @@
 use error::MeshingError;
 use geometry::{create_super_triangle, edge_is_shared_by_triangles, retriangulate};
 use geometry_3d::{create_super_tetrahedron, face_is_shared_by_tetrahedra, retetrahedralize};
-pub use model::{Edge, Face, Point2D, Point3D, Sphere, Tetrahedron, Triangle};
+pub use model::{Circle, Edge, Face, Point2D, Point3D, Sphere, Tetrahedron, Triangle};
 use tetrahedron_utils::remove_tetrahedra_with_vertices_from_super_tetrahedron;
 use triangle_utils::remove_triangles_with_vertices_from_super_triangle;
 
