@@ -21,3 +21,11 @@ version = "0.3.5"
 
 [dev-dependencies.rand]
 version = "0.8.5"
+
+[dev-dependencies.criterion]
+version = "0.5"
+features = ["html_reports"]
+
+[[bench]]
+name = "mesh_benchmarks"
+harness = false
