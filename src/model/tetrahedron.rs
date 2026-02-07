@@ -85,6 +85,19 @@ impl Tetrahedron {
         [self.a, self.b, self.c, self.d]
     }
 
+    pub fn signed_volume(&self) -> f64 {
+        let ux = self.b.x - self.a.x;
+        let uy = self.b.y - self.a.y;
+        let uz = self.b.z - self.a.z;
+        let vx = self.c.x - self.a.x;
+        let vy = self.c.y - self.a.y;
+        let vz = self.c.z - self.a.z;
+        let wx = self.d.x - self.a.x;
+        let wy = self.d.y - self.a.y;
+        let wz = self.d.z - self.a.z;
+        (ux * (vy * wz - vz * wy) - uy * (vx * wz - vz * wx) + uz * (vx * wy - vy * wx)) / 6.0
+    }
+
     pub fn contains_face(&self, face: &Face) -> bool {
         let verts = self.vertices();
         verts.contains(&face.a) && verts.contains(&face.b) && verts.contains(&face.c)

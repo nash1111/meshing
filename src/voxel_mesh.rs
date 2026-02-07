@@ -140,6 +140,25 @@ mod tests {
     }
 
     #[test]
+    fn test_all_tetrahedra_have_nonzero_volume() {
+        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let result = voxel_mesh(min, max, 3, 3, 3, &|_| true);
+        for tet in &result {
+            assert!(tet.signed_volume().abs() > 1e-15, "Degenerate tetrahedron found");
+        }
+    }
+
+    #[test]
+    fn test_asymmetric_resolution() {
+        let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
+        let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
+        let result = voxel_mesh(min, max, 1, 2, 3, &|_| true);
+        // 1×2×3 = 6 cells × 5 tets = 30
+        assert_eq!(result.len(), 30);
+    }
+
+    #[test]
     fn test_shared_vertex_indices() {
         let min = Point3D { index: 0, x: 0.0, y: 0.0, z: 0.0 };
         let max = Point3D { index: 0, x: 1.0, y: 1.0, z: 1.0 };
