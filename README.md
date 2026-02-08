@@ -136,9 +136,20 @@ cargo run --example sphere_mesh_export
 
 # All pipeline algorithms (marching cubes, surface_to_volume, octree_refined, voxel_refined)
 cargo run --example pipeline_example
+
+# Generate 3D visualization PNGs (requires --release for font rendering)
+cargo run --release --example 3d_plot
 ```
 
-Output files are written to `examples/` and can be viewed with:
+| Marching Cubes: Sphere | Marching Cubes: Torus | Marching Cubes: Gyroid |
+|---|---|---|
+| ![sphere](examples/marching_cubes_sphere.png) | ![torus](examples/marching_cubes_torus.png) | ![gyroid](examples/marching_cubes_gyroid.png) |
+
+| Voxel Mesh | Octree Mesh |
+|---|---|
+| ![voxel](examples/voxel_mesh.png) | ![octree](examples/octree_mesh.png) |
+
+Output files (STL, OBJ, GLB, VTK) are written to `examples/` and can be viewed with:
 - **STL/OBJ/GLB** - MeshLab, Blender, [glTF Viewer](https://gltf-viewer.donmccurdy.com/)
 - **VTK** - ParaView
 
