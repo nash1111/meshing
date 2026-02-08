@@ -113,6 +113,8 @@ let tetrahedra = surface_to_volume(8, 8, 8, min, max, &sphere, 0.0);
 
 ## Examples
 
+### 2D
+
 ```
 cargo run --example simple_2d_triangulation
 cargo run --example 2d_plot 100
@@ -122,6 +124,23 @@ cargo run --example 2d_plot 100
 ![1000points](examples/delaunay_2d_1000_points.png)
 ![10000points](examples/delaunay_2d_10000_points.png)
 ![100000points](examples/delaunay_2d_100000_points.png)
+
+### 3D
+
+```
+# Bowyer-Watson 3D on cube vertices
+cargo run --example simple_3d_tetrahedralization
+
+# Marching cubes sphere → export to STL, OBJ, GLB, VTK
+cargo run --example sphere_mesh_export
+
+# All pipeline algorithms (marching cubes, surface_to_volume, octree_refined, voxel_refined)
+cargo run --example pipeline_example
+```
+
+Output files are written to `examples/` and can be viewed with:
+- **STL/OBJ/GLB** - MeshLab, Blender, [glTF Viewer](https://gltf-viewer.donmccurdy.com/)
+- **VTK** - ParaView
 
 ## Benchmarks
 
