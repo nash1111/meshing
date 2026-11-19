@@ -1,0 +1,32 @@
+[package]
+edition = "2021"
+name = "meshing"
+version = "0.0.1"
+authors = ["nash1111 ken1251213@gmail.com"]
+description = "meshing for 2D and 3D(not implemented yet)"
+readme = "README.md"
+license-file = "LICENSE"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+thiserror = "1"
+wasm-bindgen = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+js-sys = "0.3"
+
+[dev-dependencies.plotters]
+version = "0.3.5"
+
+[dev-dependencies.rand]
+version = "0.8.5"
+
+[dev-dependencies.criterion]
+version = "0.5"
+features = ["html_reports"]
+
+[[bench]]
+name = "mesh_benchmarks"
+harness = false
